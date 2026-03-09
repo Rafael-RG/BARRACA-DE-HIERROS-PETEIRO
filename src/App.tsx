@@ -9,11 +9,13 @@ import {
   List as ListIcon,
   Download,
   AlertCircle,
-  RefreshCw,
   ArrowLeft,
   MessageCircle,
   Phone,
-  MapPin
+  MapPin,
+  Wrench,
+  Hammer,
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { parseExcelFromUrl } from './utils/excelParser';
@@ -26,6 +28,9 @@ import { ProductDetailModal } from './components/ProductDetailModal';
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+// Constantes globales
+const WHATSAPP_NUMBER = '5491112345678'; // Actualizar con el número real
 
 // Sample data based on PDF for initial view
 const SAMPLE_DATA: Product[] = [
@@ -50,7 +55,6 @@ export default function App() {
   const [currentView, setCurrentView] = useState<'categories' | 'products' | 'about'>('categories');
   
   const PRODUCTS_PER_PAGE = 20;
-  const WHATSAPP_NUMBER = '5491112345678'; // Actualizar con el número real
 
   // Cargar Excel desde URL remota
   const loadRemoteExcel = useCallback(async () => {
@@ -172,9 +176,36 @@ export default function App() {
                 <ArrowLeft className="w-5 h-5" />
               </button>
             )}
-            <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center">
-              <Package className="text-white w-6 h-6" />
-            </div>
+            <motion.div 
+              className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center relative overflow-hidden"
+              animate={{
+                boxShadow: [
+                  '0 0 0 0 rgba(220, 38, 38, 0)',
+                  '0 0 15px 3px rgba(220, 38, 38, 0.4)',
+                  '0 0 0 0 rgba(220, 38, 38, 0)'
+                ]
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              {/* Brillo metálico */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent"
+                animate={{
+                  x: ['-100%', '100%']
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "linear",
+                  repeatDelay: 2
+                }}
+              />
+              <Package className="text-white w-6 h-6 relative z-10" />
+            </motion.div>
             <h1 className="text-xl font-bold tracking-tight hidden sm:block">Barraca de Hierros</h1>
           </div>
 
@@ -213,13 +244,65 @@ export default function App() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Loading State */}
+        {/* Loading State - Barra de progreso centrada */}
         {isLoading && (
-          <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-2xl flex items-center gap-4">
-            <RefreshCw className="w-6 h-6 text-blue-600 animate-spin" />
-            <div>
-              <h3 className="font-bold text-blue-900">Cargando productos...</h3>
-              <p className="text-sm text-blue-700">Por favor espera un momento</p>
+          <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-40 flex items-center justify-center">
+            <div className="w-80 space-y-4">
+              {/* Iconos animados */}
+              <div className="flex justify-center gap-2">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                >
+                  <Wrench className="w-8 h-8 text-red-600" />
+                </motion.div>
+                <motion.div
+                  animate={{ 
+                    rotate: -360,
+                    scale: [1, 1.2, 1]
+                  }}
+                  transition={{ 
+                    rotate: { duration: 1.5, repeat: Infinity, ease: "linear" },
+                    scale: { duration: 1, repeat: Infinity }
+                  }}
+                >
+                  <Hammer className="w-8 h-8 text-red-600" />
+                </motion.div>
+              </div>
+              
+              {/* Texto */}
+              <div className="text-center">
+                <h3 className="font-bold text-red-900 text-lg">Cargando productos...</h3>
+              </div>
+              
+              {/* Barra de progreso */}
+              <div className="relative h-3 bg-gray-200 rounded-full overflow-hidden">
+                {/* Barra animada */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-red-500 via-red-600 to-red-500 bg-[length:200%_100%]"
+                  animate={{
+                    backgroundPosition: ['0% 0%', '200% 0%']
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "linear"
+                  }}
+                />
+                
+                {/* Brillo metálico que se mueve */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                  animate={{
+                    x: ['-100%', '200%']
+                  }}
+                  transition={{
+                    duration: 1.2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+              </div>
             </div>
           </div>
         )}
@@ -257,15 +340,48 @@ export default function App() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
+                    whileHover={{ scale: 1.02 }}
                     className="group relative bg-white border-2 border-red-600/5 rounded-3xl p-8 hover:border-red-600 hover:shadow-2xl transition-all duration-300 text-left overflow-hidden"
                   >
                     {/* Background Pattern */}
                     <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     
+                    {/* Brillo metálico en hover */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-red-200/30 to-transparent opacity-0 group-hover:opacity-100"
+                      initial={{ x: '-100%' }}
+                      whileHover={{ 
+                        x: '100%',
+                        transition: { duration: 0.6, ease: "easeInOut" }
+                      }}
+                    />
+                    
+                    {/* Chispas decorativas */}
+                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Sparkles className="w-5 h-5 text-red-600/40" />
+                    </div>
+                    
                     <div className="relative z-10">
-                      <div className="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <Package className="w-8 h-8 text-white" />
-                      </div>
+                      <motion.div 
+                        className="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden"
+                        whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        {/* Pulso de fondo */}
+                        <motion.div
+                          className="absolute inset-0 bg-red-400 rounded-2xl"
+                          animate={{
+                            scale: [1, 1.2, 1],
+                            opacity: [0.5, 0, 0.5]
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                        />
+                        <Package className="w-8 h-8 text-white relative z-10" />
+                      </motion.div>
                       
                       <h3 className="text-2xl font-bold mb-2 group-hover:text-red-600 transition-colors">
                         {category}
@@ -492,6 +608,7 @@ export default function App() {
                                               key={item.id} 
                                               product={item} 
                                               viewMode={viewMode}
+                                              whatsappNumber={WHATSAPP_NUMBER}
                                               onClick={() => setSelectedProduct(item)}
                                             />
                                           ))}
@@ -598,18 +715,35 @@ export default function App() {
         product={selectedProduct}
         isOpen={!!selectedProduct}
         onClose={() => setSelectedProduct(null)}
+        whatsappNumber={WHATSAPP_NUMBER}
       />
 
-      {/* Bot\u00f3n flotante de WhatsApp */}
-      <a
+      {/* Botón flotante de WhatsApp */}
+      <motion.a
         href={`https://wa.me/${WHATSAPP_NUMBER}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 z-50"
-        title="Cont\u00e1ctanos por WhatsApp"
+        className="fixed bottom-6 right-6 w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-2xl flex items-center justify-center transition-colors z-50"
+        title="Contáctanos por WhatsApp"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        animate={{
+          boxShadow: [
+            '0 10px 30px rgba(34, 197, 94, 0.3)',
+            '0 10px 40px rgba(34, 197, 94, 0.5)',
+            '0 10px 30px rgba(34, 197, 94, 0.3)'
+          ]
+        }}
+        transition={{
+          boxShadow: {
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }
+        }}
       >
         <MessageCircle className="w-7 h-7" />
-      </a>
+      </motion.a>
     </div>
   );
 }
@@ -618,9 +752,27 @@ interface ProductCardProps {
   product: Product;
   viewMode: 'grid' | 'list';
   onClick?: () => void;
+  whatsappNumber: string;
 }
 
-function ProductCard({ product, viewMode, onClick }: Readonly<ProductCardProps>) {
+function ProductCard({ product, viewMode, onClick, whatsappNumber }: Readonly<ProductCardProps>) {
+  // Determinar si el producto tiene precio válido
+  const hasPrice = product.precio && 
+    ((typeof product.precio === 'number' && product.precio > 0) || 
+    (typeof product.precio === 'string' && product.precio.trim() !== '' && product.precio.trim() !== '-'));
+  
+  // Debug: Log productos sin precio
+  if (!hasPrice) {
+    console.log('Producto sin precio:', product.nombre, 'Valor precio:', product.precio, 'Tipo:', typeof product.precio);
+  }
+  
+  const handleWhatsAppClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Evitar que abra el modal
+    const message = `Hola! Me interesa consultar por: ${product.nombre}`;
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
+  };
+  
   return (
     <motion.div 
       layout
@@ -659,18 +811,18 @@ function ProductCard({ product, viewMode, onClick }: Readonly<ProductCardProps>)
         viewMode === 'grid' ? "p-5" : "p-0"
       )}>
         <div className="flex flex-col h-full">
-          <div className="mb-2">
-            <h4 className="font-bold text-sm leading-tight mb-1 group-hover:text-blue-600 transition-colors">
+          <div className="mb-3">
+            <h4 className="font-bold text-sm leading-tight mb-2 group-hover:text-red-600 transition-colors">
               {product.nombre}
             </h4>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-2">
               {product.calibre && (
-                <span className="text-[10px] font-bold bg-gray-100 px-2 py-0.5 rounded-md uppercase tracking-wider text-gray-500">
+                <span className="text-xs font-bold bg-red-50 text-red-700 px-2.5 py-1 rounded-md uppercase tracking-wide border border-red-200">
                   Cal: {product.calibre}
                 </span>
               )}
               {product.medida && (
-                <span className="text-[10px] font-bold bg-gray-100 px-2 py-0.5 rounded-md uppercase tracking-wider text-gray-500 text-ellipsis overflow-hidden whitespace-nowrap max-w-[150px]">
+                <span className="text-xs font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md tracking-wide border border-blue-200">
                   {product.medida}
                 </span>
               )}
@@ -678,12 +830,22 @@ function ProductCard({ product, viewMode, onClick }: Readonly<ProductCardProps>)
           </div>
 
           <div className="mt-auto pt-4 flex items-center justify-between border-t border-gray-50">
-            <div className="flex flex-col">
-              <span className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Precio</span>
-              <span className="text-sm font-bold">
-                {typeof product.precio === 'number' ? `$${product.precio.toFixed(2)}` : product.precio || 'Consultar'}
-              </span>
-            </div>
+            {hasPrice ? (
+              <div className="flex flex-col">
+                <span className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Precio</span>
+                <span className="text-sm font-bold">
+                  {typeof product.precio === 'number' ? `$${product.precio.toFixed(2)}` : product.precio}
+                </span>
+              </div>
+            ) : (
+              <button
+                onClick={handleWhatsAppClick}
+                className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-bold transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Consultar precio
+              </button>
+            )}
             {product.presentacion && (
               <div className="text-right">
                 <span className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Venta</span>

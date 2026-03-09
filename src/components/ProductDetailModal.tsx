@@ -1,16 +1,29 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Package, Tag, Ruler, DollarSign, Info } from 'lucide-react';
+import { X, Package, Tag, Ruler, DollarSign, Info, MessageCircle } from 'lucide-react';
 import { Product } from '../types';
 
 interface ProductDetailModalProps {
   product: Product | null;
   isOpen: boolean;
   onClose: () => void;
+  whatsappNumber?: string;
 }
 
-export function ProductDetailModal({ product, isOpen, onClose }: Readonly<ProductDetailModalProps>) {
+export function ProductDetailModal({ product, isOpen, onClose, whatsappNumber }: Readonly<ProductDetailModalProps>) {
   if (!product) return null;
+  
+  // Determinar si el producto tiene precio válido
+  const hasPrice = product.precio && 
+    ((typeof product.precio === 'number' && product.precio > 0) || 
+    (typeof product.precio === 'string' && product.precio.trim() !== '' && product.precio.trim() !== '-'));
+  
+  const handleWhatsAppClick = () => {
+    if (!whatsappNumber) return;
+    const message = `Hola! Me interesa consultar el precio de: ${product.nombre}`;
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
+  };
 
   return (
     <AnimatePresence>
@@ -83,15 +96,39 @@ export function ProductDetailModal({ product, isOpen, onClose }: Readonly<Produc
                     <DollarSign className="w-6 h-6 text-green-700" />
                     <h3 className="font-bold text-green-900">Precio</h3>
                   </div>
-                  <div className="text-4xl font-bold text-green-700">
-                    {typeof product.precio === 'number'
-                      ? `$${product.precio.toFixed(2)}`
-                      : product.precio || 'Consultar'}
-                  </div>
-                  {product.presentacion && (
-                    <p className="text-sm text-green-700 mt-2">
-                      {product.presentacion}
-                    </p>
+                  {hasPrice ? (
+                    <>
+                      <div className="text-4xl font-bold text-green-700">
+                        {typeof product.precio === 'number'
+                          ? `$${product.precio.toFixed(2)}`
+                          : product.precio}
+                      </div>
+                      {product.presentacion && (
+                        <p className="text-sm text-green-700 mt-2">
+                          {product.presentacion}
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <div className="space-y-3">
+                      <p className="text-lg text-green-800">
+                        Precio a consultar
+                      </p>
+                      {whatsappNumber && (
+                        <button
+                          onClick={handleWhatsAppClick}
+                          className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl text-sm font-bold transition-colors"
+                        >
+                          <MessageCircle className="w-5 h-5" />
+                          Consultar precio por WhatsApp
+                        </button>
+                      )}
+                      {product.presentacion && (
+                        <p className="text-sm text-green-700 mt-2">
+                          {product.presentacion}
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
 
