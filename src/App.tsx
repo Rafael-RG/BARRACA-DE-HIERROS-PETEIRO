@@ -1,0 +1,704 @@
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { 
+  Search, 
+  Package, 
+  Filter, 
+  ChevronRight, 
+  ChevronLeft,
+  Grid, 
+  List as ListIcon,
+  Download,
+  AlertCircle,
+  RefreshCw,
+  ArrowLeft,
+  MessageCircle,
+  Phone,
+  MapPin
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { parseExcelFromUrl } from './utils/excelParser';
+import { Product, GroupedProducts } from './types';
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+import { config } from './config';
+import { ProductDetailModal } from './components/ProductDetailModal';
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+// Sample data based on PDF for initial view
+const SAMPLE_DATA: Product[] = [
+  { id: 's1', nombre: 'Chapas para techos, Sinusoidal, 30", 0,80 mts x 3,60mts', categoria: 'Chapas para techos', tipo: 'Sinusoidal', calibre: '30', medida: '0,80 mts x 3,60mts', precio: 16.8, presentacion: 'x unidad' },
+  { id: 's2', nombre: 'Chapas para techos, Sinusoidal, 30", 0,08 mts x 4,00mts', categoria: 'Chapas para techos', tipo: 'Sinusoidal', calibre: '30', medida: '0,08 mts x 4,00mts', precio: 18.9, presentacion: 'x unidad' },
+  { id: 's3', nombre: 'Chapas para techos, Lisa, 14", 1mts x 2mts, Galvanizada', categoria: 'Chapas para techos', tipo: 'Lisa', calibre: '14', medida: '1mts x 2mts', precio: 'Consultar', presentacion: 'x unidad' },
+  { id: 's4', nombre: 'Planchas de hierro, Lisas, 12", 1,22 mts x 3mts', categoria: 'Planchas de hierro', tipo: 'Lisas', calibre: '12', medida: '1,22 mts x 3mts', precio: 'Consultar', presentacion: 'x unidad' },
+  { id: 's5', nombre: 'Caño de hierro, Redondo, 1,5", mts x 6mts', categoria: 'Caño de hierro', tipo: 'Redondo', calibre: '1,5', medida: 'mts x 6mts', precio: 1.72, presentacion: 'x metro lineal' },
+];
+
+export default function App() {
+  const [products, setProducts] = useState<Product[]>(SAMPLE_DATA);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isUsingRemoteData, setIsUsingRemoteData] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set());
+  const [typePages, setTypePages] = useState<Map<string, number>>(new Map());
+  const [currentView, setCurrentView] = useState<'categories' | 'products' | 'about'>('categories');
+  
+  const PRODUCTS_PER_PAGE = 20;
+  const WHATSAPP_NUMBER = '5491112345678'; // Actualizar con el número real
+
+  // Cargar Excel desde URL remota
+  const loadRemoteExcel = useCallback(async () => {
+    if (!config.excelUrl) {
+      console.log('No hay URL de Excel configurada, usando datos de muestra');
+      return;
+    }
+    
+    console.log('Intentando cargar Excel desde:', config.excelUrl);
+    setIsLoading(true);
+    setLoadError(null);
+    
+    try {
+      const parsedProducts = await parseExcelFromUrl(config.excelUrl);
+      console.log('Excel cargado exitosamente, productos:', parsedProducts.length);
+      setProducts(parsedProducts);
+      setSelectedCategory(null);
+      setIsUsingRemoteData(true);
+    } catch (error) {
+      console.error('Error cargando Excel:', error);
+      setLoadError(`No se pudo cargar el archivo: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+      setIsUsingRemoteData(false);
+      // Mantener los datos de muestra en caso de error
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Cargar automáticamente al iniciar si hay URL configurada
+  useEffect(() => {
+    if (config.excelUrl) {
+      loadRemoteExcel();
+    }
+  }, [loadRemoteExcel]);
+
+  // La página siempre carga datos frescos al entrar, no necesita auto-refresh
+
+  const filteredProducts = useMemo(() => {
+    const filtered = products.filter(p => {
+      const matchesSearch = p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          p.tipo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          p.categoria.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = !selectedCategory || p.categoria === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+    return filtered;
+  }, [products, searchTerm, selectedCategory]);
+
+  const groupedProducts = useMemo(() => {
+    const grouped: GroupedProducts = {};
+    filteredProducts.forEach(p => {
+      if (!grouped[p.categoria]) grouped[p.categoria] = {};
+      if (!grouped[p.categoria][p.tipo]) grouped[p.categoria][p.tipo] = [];
+      grouped[p.categoria][p.tipo].push(p);
+    });
+    return grouped;
+  }, [filteredProducts]);
+
+  const categories = useMemo(() => {
+    return Array.from(new Set(products.map(p => p.categoria)));
+  }, [products]);
+
+  const handleCategoryClick = (category: string) => {
+    setSelectedCategory(category);
+    setCurrentView('products');
+  };
+
+  const handleBackToCategories = () => {
+    setCurrentView('categories');
+    setSelectedCategory(null);
+    setSearchTerm('');
+    setTypePages(new Map());
+  };
+
+  const toggleType = (category: string, type: string) => {
+    const key = `${category}-${type}`;
+    setExpandedTypes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(key)) {
+        newSet.delete(key);
+      } else {
+        newSet.add(key);
+      }
+      return newSet;
+    });
+  };
+
+  const getTypePage = (category: string, type: string): number => {
+    const key = `${category}-${type}`;
+    return typePages.get(key) || 1;
+  };
+
+  const setTypePage = (category: string, type: string, page: number) => {
+    const key = `${category}-${type}`;
+    setTypePages(prev => {
+      const newMap = new Map(prev);
+      newMap.set(key, page);
+      return newMap;
+    });
+  };
+
+  // Resetear páginas cuando cambien filtros o búsqueda
+  useEffect(() => {
+    setTypePages(new Map());
+  }, [searchTerm, selectedCategory]);
+
+  return (
+    <div className="min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans">
+      {/* Header */}
+      <header className="bg-white border-b border-red-600/5 sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            {currentView !== 'categories' && (
+              <button
+                onClick={handleBackToCategories}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors mr-2"
+                title="Volver a categorías"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+            )}
+            <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center">
+              <Package className="text-white w-6 h-6" />
+            </div>
+            <h1 className="text-xl font-bold tracking-tight hidden sm:block">Barraca de Hierros</h1>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setCurrentView('about')}
+              className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
+            >
+              Sobre Nosotros
+            </button>
+
+            {currentView === 'products' && (
+              <>
+                <div className="flex-1 max-w-md relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input 
+                    type="text"
+                    placeholder="Buscar productos, tipos..."
+                    className="w-full pl-10 pr-4 py-2 bg-gray-100 border-none rounded-full text-sm focus:ring-2 focus:ring-red-600 transition-all"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+
+                <button 
+                  onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  title="Cambiar vista"
+                >
+                  {viewMode === 'grid' ? <ListIcon className="w-5 h-5" /> : <Grid className="w-5 h-5" />}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Loading State */}
+        {isLoading && (
+          <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-2xl flex items-center gap-4">
+            <RefreshCw className="w-6 h-6 text-blue-600 animate-spin" />
+            <div>
+              <h3 className="font-bold text-blue-900">Cargando productos...</h3>
+              <p className="text-sm text-blue-700">Por favor espera un momento</p>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {loadError && (
+          <div className="mb-8 p-6 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-4">
+            <AlertCircle className="w-6 h-6 text-red-600" />
+            <div>
+              <h3 className="font-bold text-red-900">Error al cargar</h3>
+              <p className="text-sm text-red-700">{loadError}</p>
+            </div>
+          </div>
+        )}
+
+        {currentView === 'categories' && (
+          /* Vista de Categorías */
+          <div className="space-y-8">
+            <div className="text-center max-w-2xl mx-auto">
+              <h2 className="text-4xl font-bold tracking-tight mb-4">Nuestro Catálogo</h2>
+              <p className="text-lg text-gray-600">Selecciona una categoría para ver nuestros productos</p>
+            </div>
+
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              {categories.map((category, index) => {
+                const categoryProducts = products.filter(p => p.categoria === category);
+                return (
+                  <motion.button
+                    key={category}
+                    onClick={() => handleCategoryClick(category)}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="group relative bg-white border-2 border-red-600/5 rounded-3xl p-8 hover:border-red-600 hover:shadow-2xl transition-all duration-300 text-left overflow-hidden"
+                  >
+                    {/* Background Pattern */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    
+                    <div className="relative z-10">
+                      <div className="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <Package className="w-8 h-8 text-white" />
+                      </div>
+                      
+                      <h3 className="text-2xl font-bold mb-2 group-hover:text-red-600 transition-colors">
+                        {category}
+                      </h3>
+                      
+                      <p className="text-gray-500 text-sm mb-4">
+                        {categoryProducts.length} {categoryProducts.length === 1 ? 'producto' : 'productos'}
+                      </p>
+                      
+                      <div className="flex items-center gap-2 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                        Ver productos
+                        <ChevronRight className="w-4 h-4" />
+                      </div>
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </motion.div>
+          </div>
+        )}
+
+        {currentView === 'about' && (
+          /* Vista de Sobre Nosotros */
+          <div className="max-w-4xl mx-auto space-y-8">
+            <div className="text-center">
+              <h2 className="text-4xl font-bold tracking-tight mb-4 text-red-600">BARRACA DE HIERROS PETEIRO</h2>
+              <p className="text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto">
+                Somos una empresa familiar con más de 30 años de experiencia en el rubro de la ferretería y materiales de construcción. 
+                Nos especializamos en la venta de hierros, chapas, caños y todo tipo de materiales para construcciones residenciales, 
+                comerciales e industriales.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-3xl p-8 shadow-lg border border-red-600/10">
+                <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center mb-4">
+                  <Package className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">Nuestra Misión</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  Ofrecer productos de calidad al mejor precio, brindando un servicio personalizado y asesoramiento 
+                  técnico a nuestros clientes para que sus proyectos sean un éxito.
+                </p>
+              </div>
+
+              <div className="bg-white rounded-3xl p-8 shadow-lg border border-red-600/10">
+                <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center mb-4">
+                  <Package className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">Nuestros Valores</h3>
+                <ul className="text-gray-600 space-y-2 leading-relaxed">
+                  <li>• Calidad garantizada en todos nuestros productos</li>
+                  <li>• Atención personalizada a cada cliente</li>
+                  <li>• Precios competitivos del mercado</li>
+                  <li>• Entrega rápida y confiable</li>
+                  <li>• Asesoramiento técnico profesional</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-3xl p-8 shadow-lg border border-red-600/10">
+              <h3 className="text-2xl font-bold mb-6 text-center">Contáctanos</h3>
+              <div className="grid md:grid-cols-3 gap-4">
+                <a
+                  href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center gap-3 p-6 bg-green-50 hover:bg-green-100 rounded-2xl transition-colors group"
+                >
+                  <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <MessageCircle className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="text-center">
+                    <div className="font-bold text-lg">WhatsApp</div>
+                    <div className="text-sm text-gray-600">Contáctanos ahora</div>
+                  </div>
+                </a>
+
+                <div className="flex flex-col items-center gap-3 p-6 bg-gray-50 rounded-2xl">
+                  <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center">
+                    <Phone className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="text-center">
+                    <div className="font-bold text-lg">Teléfono</div>
+                    <div className="text-sm text-gray-600">Próximamente</div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center gap-3 p-6 bg-gray-50 rounded-2xl">
+                  <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center">
+                    <MapPin className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="text-center">
+                    <div className="font-bold text-lg">Dirección</div>
+                    <div className="text-sm text-gray-600">Próximamente</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center pt-8">
+              <button
+                onClick={handleBackToCategories}
+                className="bg-red-600 text-white py-3 px-8 rounded-full font-medium hover:bg-red-700 transition-colors inline-flex items-center gap-2"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                Volver al Catálogo
+              </button>
+            </div>
+          </div>
+        )}
+
+        {currentView === 'products' && (
+          /* Vista de Productos */
+          <div className="flex flex-col md:flex-row gap-8">
+            {/* Sidebar Filters */}
+            <aside className="w-full md:w-64 shrink-0 space-y-6">
+              <div>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
+                  <Filter className="w-3 h-3" /> Categorías
+                </h2>
+                <div className="space-y-1">
+                  <button 
+                    onClick={() => setSelectedCategory(null)}
+                    className={cn(
+                      "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
+                      selectedCategory === null ? "bg-red-600 text-white font-medium" : "hover:bg-gray-200"
+                    )}
+                  >
+                    Todas las categorías
+                  </button>
+                  {categories.map(cat => (
+                    <button 
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={cn(
+                        "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
+                        selectedCategory === cat ? "bg-red-600 text-white font-medium" : "hover:bg-gray-200"
+                      )}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </aside>
+
+            {/* Product Display */}
+            <div className="flex-1 min-w-0">
+              {products === SAMPLE_DATA && !searchTerm && !selectedCategory && !isUsingRemoteData && (
+                <div className="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                      <Download className="text-amber-600 w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-amber-900">Catálogo de Muestra</h3>
+                      <p className="text-sm text-amber-700">Estás viendo productos de ejemplo. Los datos reales se cargarán automáticamente una vez configurado.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <AnimatePresence mode="wait">
+                {Object.keys(groupedProducts).length > 0 ? (
+                  <motion.div 
+                    key="product-list"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="space-y-12"
+                  >
+                    {Object.entries(groupedProducts).map(([category, types]) => (
+                      <section key={category} id={category.replaceAll(/\s+/g, '-').toLowerCase()}>
+                        <div className="flex items-center gap-4 mb-6">
+                          <h2 className="text-2xl font-bold tracking-tight">{category}</h2>
+                          <div className="h-px bg-gray-200 flex-1" />
+                        </div>
+
+                        <div className="space-y-8">
+                          {Object.entries(types).map(([type, items]) => {
+                            const typeKey = `${category}-${type}`;
+                            const isExpanded = expandedTypes.has(typeKey);
+                            const currentPage = getTypePage(category, type);
+                            const totalPages = Math.ceil(items.length / PRODUCTS_PER_PAGE);
+                            const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+                            const endIndex = startIndex + PRODUCTS_PER_PAGE;
+                            const paginatedItems = items.slice(startIndex, endIndex);
+                            
+                            return (
+                              <div key={type} className="space-y-4">
+                                <button
+                                  onClick={() => toggleType(category, type)}
+                                  className="w-full text-left flex items-center justify-between gap-2 group hover:bg-gray-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+                                >
+                                  <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                    <ChevronRight className={cn(
+                                      "w-4 h-4 text-red-600 transition-transform",
+                                      isExpanded && "rotate-90"
+                                    )} />
+                                    {type}
+                                  </h3>
+                                  <span className="text-xs text-gray-400 font-medium">
+                                    {items.length} {items.length === 1 ? 'producto' : 'productos'}
+                                  </span>
+                                </button>
+                                
+                                <AnimatePresence>
+                                  {isExpanded && (
+                                    <motion.div
+                                      initial={{ height: 0, opacity: 0 }}
+                                      animate={{ height: "auto", opacity: 1 }}
+                                      exit={{ height: 0, opacity: 0 }}
+                                      transition={{ duration: 0.3 }}
+                                      className="overflow-hidden"
+                                    >
+                                      <div className="space-y-4">
+                                        <div className={cn(
+                                          "grid gap-4",
+                                          viewMode === 'grid' ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
+                                        )}>
+                                          {paginatedItems.map(item => (
+                                            <ProductCard 
+                                              key={item.id} 
+                                              product={item} 
+                                              viewMode={viewMode}
+                                              onClick={() => setSelectedProduct(item)}
+                                            />
+                                          ))}
+                                        </div>
+
+                                        {/* Paginación por tipo */}
+                                        {totalPages > 1 && (
+                                          <div className="flex items-center justify-between border-t border-gray-200 pt-4 mt-4">
+                                            <div className="text-sm text-gray-600">
+                                              Mostrando <span className="font-medium">{startIndex + 1}</span> - <span className="font-medium">{Math.min(endIndex, items.length)}</span> de <span className="font-medium">{items.length}</span>
+                                            </div>
+                                            
+                                            <div className="flex items-center gap-2">
+                                              <button
+                                                onClick={() => setTypePage(category, type, Math.max(1, currentPage - 1))}
+                                                disabled={currentPage === 1}
+                                                className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                                title="Página anterior"
+                                              >
+                                                <ChevronLeft className="w-4 h-4" />
+                                              </button>
+                                              
+                                              <div className="flex items-center gap-1">
+                                                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                                                  if (
+                                                    page === 1 ||
+                                                    page === totalPages ||
+                                                    (page >= currentPage - 1 && page <= currentPage + 1)
+                                                  ) {
+                                                    return (
+                                                      <button
+                                                        key={page}
+                                                        onClick={() => setTypePage(category, type, page)}
+                                                        className={cn(
+                                                          "min-w-[35px] h-9 rounded-lg font-medium transition-colors text-sm",
+                                                          page === currentPage
+                                                            ? "bg-red-600 text-white"
+                                                            : "hover:bg-gray-100"
+                                                        )}
+                                                      >
+                                                        {page}
+                                                      </button>
+                                                    );
+                                                  } else if (
+                                                    page === currentPage - 2 ||
+                                                    page === currentPage + 2
+                                                  ) {
+                                                    return <span key={page} className="px-1 text-gray-400 text-sm">...</span>;
+                                                  }
+                                                  return null;
+                                                })}
+                                              </div>
+                                              
+                                              <button
+                                                onClick={() => setTypePage(category, type, Math.min(totalPages, currentPage + 1))}
+                                                disabled={currentPage === totalPages}
+                                                className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                                title="Página siguiente"
+                                              >
+                                                <ChevronRight className="w-4 h-4" />
+                                              </button>
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </section>
+                    ))}
+                  </motion.div>
+                ) : (
+                  <motion.div 
+                    key="empty-state"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="py-20 text-center"
+                  >
+                    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Search className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-bold">No se encontraron productos</h3>
+                    <p className="text-gray-500">Intenta ajustar tu búsqueda o filtros.</p>
+                    <button 
+                      onClick={() => { setSearchTerm(''); setSelectedCategory(null); }}
+                      className="mt-4 text-sm font-medium text-red-600 underline underline-offset-4"
+                    >
+                      Limpiar todos los filtros
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* Modal de Detalle */}
+      <ProductDetailModal
+        product={selectedProduct}
+        isOpen={!!selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+      />
+
+      {/* Bot\u00f3n flotante de WhatsApp */}
+      <a
+        href={`https://wa.me/${WHATSAPP_NUMBER}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 z-50"
+        title="Cont\u00e1ctanos por WhatsApp"
+      >
+        <MessageCircle className="w-7 h-7" />
+      </a>
+    </div>
+  );
+}
+
+interface ProductCardProps {
+  product: Product;
+  viewMode: 'grid' | 'list';
+  onClick?: () => void;
+}
+
+function ProductCard({ product, viewMode, onClick }: Readonly<ProductCardProps>) {
+  return (
+    <motion.div 
+      layout
+      onClick={onClick}
+      className={cn(
+        "bg-white border border-red-600/5 rounded-2xl overflow-hidden hover:shadow-xl hover:border-red-600/10 transition-all group cursor-pointer",
+        viewMode === 'list' ? "flex items-center p-4 gap-6" : "p-0"
+      )}
+    >
+      {/* Image Placeholder or Real Image */}
+      <div className={cn(
+        "bg-gray-100 shrink-0 relative overflow-hidden",
+        viewMode === 'list' ? "w-24 h-24 rounded-xl" : "aspect-square w-full"
+      )}>
+        {product.imagen ? (
+          <img 
+            src={product.imagen} 
+            alt={product.nombre}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-300">
+            <Package className="w-1/3 h-1/3" />
+          </div>
+        )}
+        {product.precio && typeof product.precio === 'number' && (
+          <div className="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">
+            ${product.precio.toFixed(2)}
+          </div>
+        )}
+      </div>
+
+      <div className={cn(
+        "flex-1",
+        viewMode === 'grid' ? "p-5" : "p-0"
+      )}>
+        <div className="flex flex-col h-full">
+          <div className="mb-2">
+            <h4 className="font-bold text-sm leading-tight mb-1 group-hover:text-blue-600 transition-colors">
+              {product.nombre}
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {product.calibre && (
+                <span className="text-[10px] font-bold bg-gray-100 px-2 py-0.5 rounded-md uppercase tracking-wider text-gray-500">
+                  Cal: {product.calibre}
+                </span>
+              )}
+              {product.medida && (
+                <span className="text-[10px] font-bold bg-gray-100 px-2 py-0.5 rounded-md uppercase tracking-wider text-gray-500 text-ellipsis overflow-hidden whitespace-nowrap max-w-[150px]">
+                  {product.medida}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-auto pt-4 flex items-center justify-between border-t border-gray-50">
+            <div className="flex flex-col">
+              <span className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Precio</span>
+              <span className="text-sm font-bold">
+                {typeof product.precio === 'number' ? `$${product.precio.toFixed(2)}` : product.precio || 'Consultar'}
+              </span>
+            </div>
+            {product.presentacion && (
+              <div className="text-right">
+                <span className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Venta</span>
+                <span className="block text-xs font-medium text-gray-600">{product.presentacion}</span>
+              </div>
+            )}
+          </div>
+          
+          {product.observacion && (
+            <div className="mt-3 text-[10px] text-gray-400 italic line-clamp-1">
+              * {product.observacion}
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+}

@@ -1,0 +1,5 @@
+{
+  "name": "Barraca de Hierros - Catálogo de Productos",
+  "description": "Aplicación para visualizar y filtrar productos de una barraca de hierros desde un archivo Excel.",
+  "requestFramePermissions": []
+}
