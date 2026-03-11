@@ -1,5 +1,44 @@
 # Guía de Configuración para Hostinger
 
+## CONFIGURACIÓN RECOMENDADA: Usar Google Sheets
+
+**Esta es la forma más fácil de actualizar productos** - solo edita el Google Sheets y los cambios se reflejan automáticamente.
+
+### Paso 1: Preparar Google Sheets
+
+1. **Asegúrate de que tu Google Sheets esté compartido:**
+   - Abre tu Google Sheets: https://docs.google.com/spreadsheets/d/1svGWJfEoFG-Y23rA0XBFpH1C2T_MT8R9/edit
+   - Haz clic en **Compartir** (botón arriba a la derecha)
+   - En "Acceso general" selecciona **"Cualquier persona con el enlace"**
+   - Rol: **"Lector"**
+   - Guarda los cambios
+
+2. **Estructura requerida del Google Sheets:**
+   
+   | Nombre | Categoría | Tipo | Calibre | Medida | Precio | Presentacion | Imagen | Observacion |
+   |--------|-----------|------|---------|---------|--------|--------------|--------|-------------|
+   | Chapas para techos, Sinusoidal, 30", 0,80 mts x 3,60mts | Chapas para techos | Sinusoidal | 30 | 0,80 mts x 3,60mts | 16.80 | x unidad | | |
+
+### Paso 2: La aplicación ya está configurada
+
+La URL del Google Sheets ya está configurada en el código:
+```
+https://docs.google.com/spreadsheets/d/1svGWJfEoFG-Y23rA0XBFpH1C2T_MT8R9/export?format=xlsx
+```
+
+### Paso 3: Para actualizar productos (FÁCIL)
+
+1. Abre tu Google Sheets
+2. Edita, agrega o elimina productos
+3. Guarda (automático en Google Sheets)
+4. **¡Listo!** Los cambios se reflejarán en la próxima visita de los clientes
+
+---
+
+## ALTERNATIVA: Subir Excel a Hostinger
+
+Si prefieres subir archivos Excel directamente a Hostinger en lugar de usar Google Sheets:
+
 ## Paso 1: Preparar el archivo Excel
 
 1. Asegúrate de que tu archivo Excel tenga las siguientes columnas (en este orden es recomendado):
