@@ -15,7 +15,8 @@ import {
   MapPin,
   Wrench,
   Hammer,
-  Sparkles
+  Sparkles,
+  Instagram
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { parseExcelFromUrl } from './utils/excelParser';
@@ -481,7 +482,7 @@ export default function App() {
             {/* Sección: Contáctanos */}
             <div className="bg-white rounded-3xl p-8 shadow-lg border border-red-600/10">
               <h3 className="text-2xl font-bold mb-6 text-center">Canales de Contacto</h3>
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-3 gap-6">
                 <a
                   href={`https://wa.me/${WHATSAPP_NUMBER}`}
                   target="_blank"
@@ -511,6 +512,21 @@ export default function App() {
                     </a>
                   </div>
                 </div>
+
+                <a
+                  href="https://www.instagram.com/peteiro.barracadehierros/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 rounded-2xl transition-colors group"
+                >
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Instagram className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="text-center">
+                    <div className="font-bold text-lg">Instagram</div>
+                    <div className="text-sm text-gray-600">@peteiro.barracadehierros</div>
+                  </div>
+                </a>
               </div>
             </div>
 
@@ -836,6 +852,26 @@ export default function App() {
       >
         <MessageCircle className="w-7 h-7" />
       </motion.a>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white mt-16">
+        <div className="max-w-7xl mx-auto px-4 py-8 text-center">
+          <p className="text-sm text-gray-400 mb-2">
+            Copyright © 2025 Barraca de Hierros Peteiro
+          </p>
+          <p className="text-sm text-gray-400">
+            Sitio creado por{' '}
+            <a
+              href="https://wa.me/59892952528"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-red-400 hover:text-red-300 font-medium transition-colors"
+            >
+              Kiwibyte Studio™
+            </a>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
