@@ -58,6 +58,12 @@ export default function App() {
   
   const PRODUCTS_PER_PAGE = 20;
 
+  // Log version on mount
+  useEffect(() => {
+    console.log('%c🏗️ Barraca de Hierros Peteiro v1.0.0', 'color: #dc2626; font-size: 14px; font-weight: bold');
+    console.log('Build date:', new Date().toISOString().split('T')[0]);
+  }, []);
+
   // Cargar Excel desde URL remota
   const loadRemoteExcel = useCallback(async () => {
     if (!config.excelUrl) {
