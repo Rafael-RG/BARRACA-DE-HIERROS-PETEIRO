@@ -31,7 +31,7 @@ function cn(...inputs: ClassValue[]) {
 }
 
 // Constantes globales
-const WHATSAPP_NUMBER = '5491112345678'; // Actualizar con el número real
+const WHATSAPP_NUMBER = '59896407663'; // Uruguay: 096 407 663
 
 // Sample data based on PDF for initial view
 const SAMPLE_DATA: Product[] = [
@@ -53,7 +53,7 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set());
   const [typePages, setTypePages] = useState<Map<string, number>>(new Map());
-  const [currentView, setCurrentView] = useState<'categories' | 'products' | 'about'>('categories');
+  const [currentView, setCurrentView] = useState<'categories' | 'products' | 'about' | 'contact'>('categories');
   
   const PRODUCTS_PER_PAGE = 20;
 
@@ -196,6 +196,12 @@ export default function App() {
               className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
             >
               Sobre Nosotros
+            </button>
+            <button
+              onClick={() => setCurrentView('contact')}
+              className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
+            >
+              Contacto
             </button>
 
             {currentView === 'products' && (
@@ -395,44 +401,87 @@ export default function App() {
                   className="h-32 w-auto object-contain rounded-2xl shadow-lg"
                 />
               </div>
-              <h2 className="text-4xl font-bold tracking-tight mb-4 text-red-600">BARRACA DE HIERROS PETEIRO</h2>
-              <p className="text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto">
-                Somos una empresa familiar con más de 30 años de experiencia en el rubro de la ferretería y materiales de construcción. 
-                Nos especializamos en la venta de hierros, chapas, caños y todo tipo de materiales para construcciones residenciales, 
-                comerciales e industriales.
+              <h2 className="text-4xl font-bold tracking-tight mb-4 text-red-600">Sobre Nosotros</h2>
+            </div>
+
+            {/* Sección: Quiénes Somos */}
+            <div className="bg-white rounded-3xl p-8 shadow-lg border border-red-600/10">
+              <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                En <span className="font-bold text-red-600">Barraca de Hierro Peteiro</span> nos especializamos en la 
+                venta de hierros y materiales para construcción en Uruguay, brindando atención cercana, ágil y profesional.
+              </p>
+              <p className="text-gray-700 leading-relaxed mb-6">
+                Desde 2005, acompañamos el desarrollo de obras en la costa este del país con productos de calidad y 
+                soluciones pensadas para cada escala de proyecto. Nuestra primera sucursal en <span className="font-semibold">Parque del Plata (Canelones)</span> fue 
+                el punto de partida de un camino que hoy se expande hacia el este con la apertura de nuestra nueva 
+                sede en <span className="font-semibold">Punta del Diablo (Rocha)</span>.
+              </p>
+              <p className="text-gray-700 leading-relaxed mb-6">
+                Con más de <span className="font-bold text-red-600">20 años de experiencia</span>, nos hemos consolidado como un{' '}
+                <span className="font-bold">referente en el rubro</span> gracias a nuestro compromiso, asesoramiento 
+                personalizado y vocación de servicio.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-white rounded-3xl p-8 shadow-lg border border-red-600/10">
-                <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center mb-4">
-                  <Package className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-bold mb-3">Nuestra Misión</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Ofrecer productos de calidad al mejor precio, brindando un servicio personalizado y asesoramiento 
-                  técnico a nuestros clientes para que sus proyectos sean un éxito.
-                </p>
-              </div>
-
-              <div className="bg-white rounded-3xl p-8 shadow-lg border border-red-600/10">
-                <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center mb-4">
-                  <Package className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-bold mb-3">Nuestros Valores</h3>
-                <ul className="text-gray-600 space-y-2 leading-relaxed">
-                  <li>• Calidad garantizada en todos nuestros productos</li>
-                  <li>• Atención personalizada a cada cliente</li>
-                  <li>• Precios competitivos del mercado</li>
-                  <li>• Entrega rápida y confiable</li>
-                  <li>• Asesoramiento técnico profesional</li>
-                </ul>
-              </div>
+            {/* Sección: Qué nos diferencia */}
+            <div className="bg-white rounded-3xl p-8 shadow-lg border border-red-600/10">
+              <h3 className="text-2xl font-bold mb-6 text-red-600">¿Qué nos diferencia?</h3>
+              <ul className="space-y-3 text-gray-700 leading-relaxed">
+                <li className="flex items-start gap-3">
+                  <span className="text-red-600 text-xl">•</span>
+                  <span>Atención cálida y humana</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-red-600 text-xl">•</span>
+                  <span>Entregas en tiempo y forma</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-red-600 text-xl">•</span>
+                  <span>Variedad de productos para obras grandes o pequeñas</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-red-600 text-xl">•</span>
+                  <span>Asesoramiento técnico para elegir el producto correcto</span>
+                </li>
+              </ul>
             </div>
 
+            {/* Sección: Mensaje de cierre */}
+            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-3xl p-8 shadow-lg border border-red-200">
+              <p className="text-lg text-gray-800 leading-relaxed text-center italic">
+                Estamos acá para <span className="font-bold text-red-700">ayudarte a construir</span> con seguridad, 
+                confianza y la tranquilidad de trabajar con una empresa familiar que{' '}
+                <span className="font-bold text-red-700">valora cada obra como si fuera propia</span>.
+              </p>
+              <p className="text-right text-gray-700 font-semibold mt-4">
+                – Familia Peteiro
+              </p>
+            </div>
+
+            <div className="text-center pt-8">
+              <button
+                onClick={handleBackToCategories}
+                className="bg-red-600 text-white py-3 px-8 rounded-full font-medium hover:bg-red-700 transition-colors inline-flex items-center gap-2"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                Volver al Catálogo
+              </button>
+            </div>
+          </div>
+        )}
+
+        {currentView === 'contact' && (
+          /* Vista de Contacto */
+          <div className="max-w-4xl mx-auto space-y-8">
+            <div className="text-center">
+              <h2 className="text-4xl font-bold tracking-tight mb-4 text-red-600">Contacto</h2>
+              <p className="text-lg text-gray-600">Estamos para ayudarte</p>
+            </div>
+
+            {/* Sección: Contáctanos */}
             <div className="bg-white rounded-3xl p-8 shadow-lg border border-red-600/10">
-              <h3 className="text-2xl font-bold mb-6 text-center">Contáctanos</h3>
-              <div className="grid md:grid-cols-3 gap-4">
+              <h3 className="text-2xl font-bold mb-6 text-center">Canales de Contacto</h3>
+              <div className="grid md:grid-cols-2 gap-6">
                 <a
                   href={`https://wa.me/${WHATSAPP_NUMBER}`}
                   target="_blank"
@@ -448,23 +497,78 @@ export default function App() {
                   </div>
                 </a>
 
-                <div className="flex flex-col items-center gap-3 p-6 bg-gray-50 rounded-2xl">
+                <div className="flex flex-col items-center gap-3 p-6 bg-red-50 rounded-2xl">
                   <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center">
                     <Phone className="w-8 h-8 text-white" />
                   </div>
                   <div className="text-center">
-                    <div className="font-bold text-lg">Teléfono</div>
-                    <div className="text-sm text-gray-600">Próximamente</div>
+                    <div className="font-bold text-lg mb-2">Teléfonos</div>
+                    <a href="tel:096610184" className="block text-sm text-gray-700 hover:text-red-600 font-medium transition-colors">
+                      096 610 184
+                    </a>
+                    <a href="tel:096407663" className="block text-sm text-gray-700 hover:text-red-600 font-medium transition-colors">
+                      096 407 663
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sección: Sucursales */}
+            <div className="bg-white rounded-3xl p-8 shadow-lg border border-red-600/10">
+              <h3 className="text-2xl font-bold mb-6 text-center">Nuestras Sucursales</h3>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-gray-50 rounded-2xl overflow-hidden">
+                  <div className="aspect-video w-full">
+                    <iframe
+                      src="https://www.google.com/maps?q=-34.751879,-55.714363&hl=es&z=15&output=embed"
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                  </div>
+                  <div className="p-6 text-center">
+                    <div className="font-bold text-lg mb-1">Parque del Plata</div>
+                    <div className="text-sm text-gray-600 mb-3">Canelones</div>
+                    <a
+                      href="https://www.google.com/maps/search/-34.751879,+-55.714363"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
+                    >
+                      <MapPin className="w-4 h-4" />
+                      Ver en Google Maps
+                    </a>
                   </div>
                 </div>
 
-                <div className="flex flex-col items-center gap-3 p-6 bg-gray-50 rounded-2xl">
-                  <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center">
-                    <MapPin className="w-8 h-8 text-white" />
+                <div className="bg-gray-50 rounded-2xl overflow-hidden">
+                  <div className="aspect-video w-full">
+                    <iframe
+                      src="https://www.google.com/maps?q=-34.039037,-53.585109&hl=es&z=15&output=embed"
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
                   </div>
-                  <div className="text-center">
-                    <div className="font-bold text-lg">Dirección</div>
-                    <div className="text-sm text-gray-600">Próximamente</div>
+                  <div className="p-6 text-center">
+                    <div className="font-bold text-lg mb-1">Punta del Diablo</div>
+                    <div className="text-sm text-gray-600 mb-3">Rocha</div>
+                    <a
+                      href="https://www.google.com/maps/place/XC67%2B9XJ,+27200+Punta+del+Diablo,+Departamento+de+Rocha/@-34.039037,-53.585109,15z"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
+                    >
+                      <MapPin className="w-4 h-4" />
+                      Ver en Google Maps
+                    </a>
                   </div>
                 </div>
               </div>
