@@ -170,27 +170,19 @@ export default function App() {
   }, [searchTerm, selectedCategory]);
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans">
+    <div className="min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-red-600/5 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            {currentView !== 'categories' && (
-              <button
-                onClick={handleBackToCategories}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors mr-2"
-                title="Volver a categorías"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-            )}
             <motion.div 
-              className="h-16 w-auto flex items-center justify-center"
+              className="h-16 w-auto flex items-center justify-center cursor-pointer"
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
+              onClick={handleBackToCategories}
             >
               <img 
-                src="/Imagenes/Logo/Barraca_De_Hierros_Peteiro.jpg" 
+                src="/Imagenes/Logo/Barraca_De_Hierros_Peteiro.png" 
                 alt="Barraca de Hierros Peteiro"
                 className="h-full w-auto object-contain"
               />
@@ -198,6 +190,12 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={handleBackToCategories}
+              className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
+            >
+              Inicio
+            </button>
             <button
               onClick={() => setCurrentView('about')}
               className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
@@ -210,34 +208,11 @@ export default function App() {
             >
               Contacto
             </button>
-
-            {currentView === 'products' && (
-              <>
-                <div className="flex-1 max-w-md relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input 
-                    type="text"
-                    placeholder="Buscar productos, tipos..."
-                    className="w-full pl-10 pr-4 py-2 bg-gray-100 border-none rounded-full text-sm focus:ring-2 focus:ring-red-600 transition-all"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-
-                <button 
-                  onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  title="Cambiar vista"
-                >
-                  {viewMode === 'grid' ? <ListIcon className="w-5 h-5" /> : <Grid className="w-5 h-5" />}
-                </button>
-              </>
-            )}
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="w-full mx-auto px-4 lg:px-8 xl:px-12 py-8 flex-1">
         {/* Loading State - Barra de progreso centrada */}
         {isLoading && (
           <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-40 flex items-center justify-center">
@@ -403,7 +378,7 @@ export default function App() {
             <div className="text-center">
               <div className="flex justify-center mb-6">
                 <img 
-                  src="/Imagenes/Logo/Barraca_De_Hierros_Peteiro.jpg" 
+                  src="/Imagenes/Logo/Barraca_De_Hierros_Peteiro.png" 
                   alt="Barraca de Hierros Peteiro"
                   className="h-32 w-auto object-contain rounded-2xl shadow-lg"
                 />
@@ -613,6 +588,47 @@ export default function App() {
           <div className="flex flex-col md:flex-row gap-8">
             {/* Sidebar Filters */}
             <aside className="w-full md:w-64 shrink-0 space-y-6">
+              {/* Barra de búsqueda */}
+              <div>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
+                  <Search className="w-3 h-3" /> Buscar
+                </h2>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input 
+                    type="text"
+                    placeholder="Buscar productos..."
+                    className="w-full pl-10 pr-4 py-2 bg-white border-2 border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-red-600 focus:border-red-600 transition-all"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Botón cambiar vista */}
+              <div>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
+                  Vista
+                </h2>
+                <button 
+                  onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
+                  className="w-full flex items-center justify-center gap-2 p-3 hover:bg-gray-100 rounded-lg transition-colors border-2 border-gray-200 bg-white"
+                  title="Cambiar vista"
+                >
+                  {viewMode === 'grid' ? (
+                    <>
+                      <ListIcon className="w-5 h-5" />
+                      <span className="text-sm font-medium">Vista Lista</span>
+                    </>
+                  ) : (
+                    <>
+                      <Grid className="w-5 h-5" />
+                      <span className="text-sm font-medium">Vista Cuadrícula</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
               <div>
                 <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
                   <Filter className="w-3 h-3" /> Categorías
@@ -689,18 +705,30 @@ export default function App() {
                               <div key={type} className="space-y-4">
                                 <button
                                   onClick={() => toggleType(category, type)}
-                                  className="w-full text-left flex items-center justify-between gap-2 group hover:bg-gray-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+                                  className="w-full text-left flex items-center justify-between gap-4 group hover:bg-red-50 border border-gray-200 hover:border-red-300 px-6 py-4 rounded-xl transition-all shadow-sm hover:shadow-md"
                                 >
-                                  <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                    <ChevronRight className={cn(
-                                      "w-4 h-4 text-red-600 transition-transform",
-                                      isExpanded && "rotate-90"
-                                    )} />
-                                    {type}
-                                  </h3>
-                                  <span className="text-xs text-gray-400 font-medium">
-                                    {items.length} {items.length === 1 ? 'producto' : 'productos'}
-                                  </span>
+                                  <div className="flex items-center gap-3 flex-1">
+                                    <div className={cn(
+                                      "w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center transition-transform",
+                                      isExpanded && "bg-red-700"
+                                    )}>
+                                      <ChevronRight className={cn(
+                                        "w-4 h-4 text-white transition-transform",
+                                        isExpanded && "rotate-90"
+                                      )} />
+                                    </div>
+                                    <h3 className="text-base font-bold text-gray-700 uppercase tracking-wide">
+                                      {type}
+                                    </h3>
+                                  </div>
+                                  <div className="flex items-center gap-6">
+                                    <span className="text-sm text-gray-500 font-medium px-4 py-2 bg-gray-100 rounded-full">
+                                      {items.length} {items.length === 1 ? 'producto' : 'productos'}
+                                    </span>
+                                    <div className="text-xs text-gray-400 font-medium">
+                                      {isExpanded ? 'Click para colapsar' : 'Click para expandir'}
+                                    </div>
+                                  </div>
                                 </button>
                                 
                                 <AnimatePresence>
@@ -860,7 +888,7 @@ export default function App() {
       </motion.a>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white mt-16">
+      <footer className="bg-gray-900 text-white mt-auto">
         <div className="max-w-7xl mx-auto px-4 py-8 text-center">
           <p className="text-sm text-gray-400 mb-2">
             Copyright © 2025 Barraca de Hierros Peteiro
@@ -907,20 +935,98 @@ function ProductCard({ product, viewMode, onClick, whatsappNumber }: Readonly<Pr
     window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
   };
   
+  if (viewMode === 'list') {
+    return (
+      <motion.div 
+        layout
+        onClick={onClick}
+        className="bg-white border border-red-600/5 rounded-2xl overflow-hidden hover:shadow-xl hover:border-red-600/10 transition-all group cursor-pointer p-4"
+      >
+        <div className="flex items-center gap-6">
+          {/* Image */}
+          <div className="bg-gray-100 shrink-0 relative overflow-hidden w-32 h-32 rounded-xl">
+            {product.imagen ? (
+              <SmartImage
+                basePath="/Imagenes/Productos"
+                fileName={product.imagen.split('/').pop() || ''}
+                alt={product.nombre}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-300">
+                <Package className="w-12 h-12" />
+              </div>
+            )}
+          </div>
+
+          {/* Content - usando todo el ancho */}
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-[2fr_1fr_auto] gap-4 items-center">
+            {/* Nombre y badges */}
+            <div>
+              <h4 className="font-bold text-base leading-tight mb-2 group-hover:text-red-600 transition-colors">
+                {product.nombre}
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {product.calibre && (
+                  <span className="text-xs font-bold bg-red-50 text-red-700 px-2.5 py-1 rounded-md uppercase tracking-wide border border-red-200">
+                    Cal: {product.calibre}
+                  </span>
+                )}
+                {product.medida && (
+                  <span className="text-xs font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md tracking-wide border border-blue-200">
+                    {product.medida}
+                  </span>
+                )}
+              </div>
+              {product.observacion && (
+                <div className="mt-2 text-xs text-gray-500 italic">
+                  * {product.observacion}
+                </div>
+              )}
+            </div>
+
+            {/* Presentación */}
+            {product.presentacion && (
+              <div className="text-left lg:text-center">
+                <span className="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Venta</span>
+                <span className="text-sm font-medium text-gray-700">{product.presentacion}</span>
+              </div>
+            )}
+
+            {/* Precio o botón consultar */}
+            <div className="flex items-center justify-end">
+              {hasPrice ? (
+                <div className="text-right">
+                  <span className="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Precio</span>
+                  <span className="text-2xl font-bold text-red-600">
+                    {typeof product.precio === 'number' ? `$${product.precio.toFixed(2)}` : product.precio}
+                  </span>
+                </div>
+              ) : (
+                <button
+                  onClick={handleWhatsAppClick}
+                  className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg text-sm font-bold transition-colors whitespace-nowrap"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Consultar precio
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // Grid view
   return (
     <motion.div 
       layout
       onClick={onClick}
-      className={cn(
-        "bg-white border border-red-600/5 rounded-2xl overflow-hidden hover:shadow-xl hover:border-red-600/10 transition-all group cursor-pointer",
-        viewMode === 'list' ? "flex items-center p-4 gap-6" : "p-0"
-      )}
+      className="bg-white border border-red-600/5 rounded-2xl overflow-hidden hover:shadow-xl hover:border-red-600/10 transition-all group cursor-pointer p-0"
     >
       {/* Image Placeholder or Real Image */}
-      <div className={cn(
-        "bg-gray-100 shrink-0 relative overflow-hidden",
-        viewMode === 'list' ? "w-24 h-24 rounded-xl" : "aspect-square w-full"
-      )}>
+      <div className="bg-gray-100 shrink-0 relative overflow-hidden aspect-square w-full">
         {product.imagen ? (
           <SmartImage
             basePath="/Imagenes/Productos"
@@ -940,10 +1046,7 @@ function ProductCard({ product, viewMode, onClick, whatsappNumber }: Readonly<Pr
         )}
       </div>
 
-      <div className={cn(
-        "flex-1",
-        viewMode === 'grid' ? "p-5" : "p-0"
-      )}>
+      <div className="p-5">
         <div className="flex flex-col h-full">
           <div className="mb-3">
             <h4 className="font-bold text-sm leading-tight mb-2 group-hover:text-red-600 transition-colors">
