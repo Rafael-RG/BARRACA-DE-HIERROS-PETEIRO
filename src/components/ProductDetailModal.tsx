@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Package, Tag, Ruler, DollarSign, Info, MessageCircle } from 'lucide-react';
 import { Product } from '../types';
+import { SmartImage } from './SmartImage';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -81,11 +82,11 @@ export function ProductDetailModal({ product, isOpen, onClose, whatsappNumber }:
                 {/* Imagen */}
                 {product.imagen && (
                   <div className="aspect-video bg-gray-100 rounded-2xl overflow-hidden">
-                    <img
-                      src={product.imagen}
+                    <SmartImage
+                      basePath="/Imagenes/Productos"
+                      fileName={product.imagen.split('/').pop() || ''}
                       alt={product.nombre}
                       className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
                     />
                   </div>
                 )}

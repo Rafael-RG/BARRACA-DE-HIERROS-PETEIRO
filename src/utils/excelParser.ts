@@ -33,6 +33,16 @@ const mapRowToProduct = (row: any, index: number): Product => {
     }
   }
 
+  // Buscar nombre de imagen (solo el nombre, sin ruta - el componente SmartImage manejará la ruta)
+  const imagenNombre = findField(row, ['Producto_Imagen', 'Producto/Imagen', 'Producto / Imagen', 'Imagen', 'imagen', 'IMAGEN', 'Image', 'image']);
+  
+  // Debug: Log todas las imágenes para debugging
+  if (imagenNombre && index < 3) {
+    console.log(`Producto ${index}: "${row['Nombre'] || row['Nombre '] || 'sin nombre'}" -> Imagen: "${imagenNombre}"`);
+  } else if (index < 5) {
+    console.log(`Producto ${index}: SIN IMAGEN - Campos disponibles:`, Object.keys(row).filter(k => k.toLowerCase().includes('imagen')));
+  }
+
   return {
     id: `prod-${index}`,
     nombre: findField(row, ['Nombre ', 'Nombre', 'nombre', 'NOMBRE', 'Producto', 'producto']) || '',
@@ -41,7 +51,7 @@ const mapRowToProduct = (row: any, index: number): Product => {
     calibre: findField(row, ['Calibre (")', 'Calibre (mm)', 'Calibre', 'calibre', 'CALIBRE', 'Espesor', 'espesor', 'ESPESOR']),
     medida,
     precio: findField(row, ['Precio(IVAInc.)', 'Precio (IVA Inc.)', 'Precio', 'precio', 'PRECIO', 'Precio en lista', 'Valor', 'valor']),
-    imagen: findField(row, ['Imagen', 'imagen', 'IMAGEN', 'Image', 'image']),
+    imagen: imagenNombre,
     presentacion: findField(row, ['Presentacion ', 'Presentación ', 'Presentacion', 'presentacion', 'PRESENTACION', 'Presentación', 'Venta', 'venta']),
     observacion: findField(row, ['Observacion ', 'Observación ', 'Observacion', 'observacion', 'OBSERVACION', 'Observación', 'Obs', 'obs', 'Nota', 'nota']),
   };
@@ -103,6 +113,12 @@ export const parseExcelFromUrl = async (url: string): Promise<Product[]> => {
     if (jsonData.length > 0) {
       console.log('Nombres de columnas en Excel:', Object.keys(jsonData[0]));
       console.log('Producto ejemplo (raw):', jsonData[0]);
+      
+      // Buscar columnas que contengan "imagen"
+      const imagenColumns = Object.keys(jsonData[0]).filter(k => 
+        k.toLowerCase().includes('imagen') || k.toLowerCase().includes('image')
+      );
+      console.log('Columnas de imagen encontradas:', imagenColumns);
     }
 
     // Map to Product interface con búsqueda flexible de columnas

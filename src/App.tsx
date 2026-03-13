@@ -24,6 +24,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { config } from './config';
 import { ProductDetailModal } from './components/ProductDetailModal';
+import { SmartImage } from './components/SmartImage';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -788,11 +789,11 @@ function ProductCard({ product, viewMode, onClick, whatsappNumber }: Readonly<Pr
         viewMode === 'list' ? "w-24 h-24 rounded-xl" : "aspect-square w-full"
       )}>
         {product.imagen ? (
-          <img 
-            src={product.imagen} 
+          <SmartImage
+            basePath="/Imagenes/Productos"
+            fileName={product.imagen.split('/').pop() || ''}
             alt={product.nombre}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-            referrerPolicy="no-referrer"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300">
