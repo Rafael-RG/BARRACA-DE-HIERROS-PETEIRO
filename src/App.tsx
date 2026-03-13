@@ -178,36 +178,16 @@ export default function App() {
               </button>
             )}
             <motion.div 
-              className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center relative overflow-hidden"
-              animate={{
-                boxShadow: [
-                  '0 0 0 0 rgba(220, 38, 38, 0)',
-                  '0 0 15px 3px rgba(220, 38, 38, 0.4)',
-                  '0 0 0 0 rgba(220, 38, 38, 0)'
-                ]
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
+              className="h-16 w-auto flex items-center justify-center"
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
             >
-              {/* Brillo metálico */}
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent"
-                animate={{
-                  x: ['-100%', '100%']
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "linear",
-                  repeatDelay: 2
-                }}
+              <img 
+                src="/Imagenes/Logo/Barraca_De_Hierros_Peteiro.jpg" 
+                alt="Barraca de Hierros Peteiro"
+                className="h-full w-auto object-contain"
               />
-              <Package className="text-white w-6 h-6 relative z-10" />
             </motion.div>
-            <h1 className="text-xl font-bold tracking-tight hidden sm:block">Barraca de Hierros</h1>
           </div>
 
           <div className="flex items-center gap-3">
@@ -408,6 +388,13 @@ export default function App() {
           /* Vista de Sobre Nosotros */
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="text-center">
+              <div className="flex justify-center mb-6">
+                <img 
+                  src="/Imagenes/Logo/Barraca_De_Hierros_Peteiro.jpg" 
+                  alt="Barraca de Hierros Peteiro"
+                  className="h-32 w-auto object-contain rounded-2xl shadow-lg"
+                />
+              </div>
               <h2 className="text-4xl font-bold tracking-tight mb-4 text-red-600">BARRACA DE HIERROS PETEIRO</h2>
               <p className="text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto">
                 Somos una empresa familiar con más de 30 años de experiencia en el rubro de la ferretería y materiales de construcción. 
