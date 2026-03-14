@@ -179,12 +179,25 @@ export default function App() {
       newMap.set(key, page);
       return newMap;
     });
+    // Scroll a la sección específica al cambiar de página
+    setTimeout(() => {
+      const elementId = `section-${key.replaceAll(/\s+/g, '-').toLowerCase()}`;
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
   };
 
   // Resetear páginas cuando cambien filtros o búsqueda
   useEffect(() => {
     setTypePages(new Map());
   }, [searchTerm, selectedCategory]);
+
+  // Scroll al inicio cuando cambie de vista
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentView]);
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans flex flex-col">
@@ -1086,7 +1099,7 @@ export default function App() {
                             const paginatedItems = items.slice(startIndex, endIndex);
                             
                             return (
-                              <div key={type} className="space-y-4">
+                              <div key={type} id={`section-${typeKey.replaceAll(/\s+/g, '-').toLowerCase()}`} className="space-y-4">
                                 <button
                                   onClick={() => toggleType(category, type)}
                                   className="w-full text-left flex items-center justify-between gap-4 group hover:bg-red-50 border border-gray-200 hover:border-red-300 px-6 py-4 rounded-xl transition-all shadow-sm hover:shadow-md"
