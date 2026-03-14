@@ -18,7 +18,11 @@ import {
   Sparkles,
   Instagram,
   Menu,
-  X
+  X,
+  DollarSign,
+  Ruler,
+  Tag,
+  Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { parseExcelFromUrl } from './utils/excelParser';
@@ -26,7 +30,6 @@ import { Product, GroupedProducts } from './types';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { config } from './config';
-import { ProductDetailModal } from './components/ProductDetailModal';
 import { SmartImage } from './components/SmartImage';
 
 function cn(...inputs: ClassValue[]) {
@@ -56,7 +59,7 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set());
   const [typePages, setTypePages] = useState<Map<string, number>>(new Map());
-  const [currentView, setCurrentView] = useState<'categories' | 'products' | 'about' | 'contact'>('categories');
+  const [currentView, setCurrentView] = useState<'categories' | 'products' | 'about' | 'contact' | 'productDetail'>('categories');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   
@@ -139,6 +142,16 @@ export default function App() {
     setSelectedCategory(null);
     setSearchTerm('');
     setTypePages(new Map());
+  };
+
+  const handleProductClick = (product: Product) => {
+    setSelectedProduct(product);
+    setCurrentView('productDetail');
+  };
+
+  const handleBackFromProduct = () => {
+    setCurrentView('products');
+    setSelectedProduct(null);
   };
 
   const toggleType = (category: string, type: string) => {
@@ -640,6 +653,155 @@ export default function App() {
           </div>
         )}
 
+        {currentView === 'productDetail' && selectedProduct && (
+          /* Vista de Detalle del Producto */
+          <div className="max-w-4xl mx-auto space-y-4">
+            {/* Botón volver */}
+            <button
+              onClick={handleBackFromProduct}
+              className="flex items-center gap-2 text-gray-600 hover:text-red-600 transition-colors font-medium text-sm"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Volver a productos
+            </button>
+
+            {/* Header del producto */}
+            <div className="bg-white rounded-lg p-4 border border-gray-200">
+              <div className="flex flex-col md:flex-row gap-4">
+                {/* Icono/Imagen en el header */}
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
+                  <Package className="w-6 h-6 text-gray-600" />
+                </div>
+                <div className="flex-1">
+                  <h1 className="text-xl md:text-2xl font-bold leading-tight mb-2">
+                    {selectedProduct.nombre}
+                  </h1>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="text-xs font-medium bg-red-600 text-white px-2.5 py-0.5 rounded-md">
+                      {selectedProduct.categoria}
+                    </span>
+                    <span className="text-xs font-medium bg-gray-200 text-gray-700 px-2.5 py-0.5 rounded-md">
+                      {selectedProduct.tipo}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Imagen del producto */}
+            {selectedProduct.imagen && (
+              <div className="bg-white rounded-lg p-3 border border-gray-200">
+                <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden max-w-2xl mx-auto">
+                  <SmartImage
+                    basePath="/Imagenes/Productos"
+                    fileName={selectedProduct.imagen.split('/').pop() || ''}
+                    alt={selectedProduct.nombre}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Precio */}
+            <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+              <div className="flex items-center gap-2 mb-3">
+                <DollarSign className="w-5 h-5 text-green-700" />
+                <h2 className="text-lg font-bold text-green-900">Precio</h2>
+              </div>
+              {(selectedProduct.precio && ((typeof selectedProduct.precio === 'number' && selectedProduct.precio > 0) || (typeof selectedProduct.precio === 'string' && selectedProduct.precio.trim() !== '' && selectedProduct.precio.trim() !== '-'))) ? (
+                <>
+                  <div className="text-3xl md:text-4xl font-bold text-green-700">
+                    {typeof selectedProduct.precio === 'number'
+                      ? `$${selectedProduct.precio.toFixed(2)}`
+                      : selectedProduct.precio}
+                  </div>
+                  {selectedProduct.presentacion && (
+                    <p className="text-sm text-green-700 mt-2">
+                      {selectedProduct.presentacion}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-base text-green-800">
+                    Precio a consultar
+                  </p>
+                  <button
+                    onClick={() => {
+                      const message = `Hola! Me interesa consultar el precio de: ${selectedProduct.nombre}`;
+                      const encodedMessage = encodeURIComponent(message);
+                      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank');
+                    }}
+                    className="w-full md:w-auto flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Consultar precio por WhatsApp
+                  </button>
+                  {selectedProduct.presentacion && (
+                    <p className="text-sm text-green-700">
+                      {selectedProduct.presentacion}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Especificaciones */}
+            <div className="bg-white rounded-lg p-4 border border-gray-200">
+              <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <Info className="w-5 h-5" />
+                Especificaciones
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {selectedProduct.calibre && (
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Tag className="w-4 h-4 text-gray-600" />
+                      <span className="text-xs font-semibold text-gray-500 uppercase">
+                        Calibre
+                      </span>
+                    </div>
+                    <div className="text-base font-bold text-gray-900">
+                      {selectedProduct.calibre}
+                    </div>
+                  </div>
+                )}
+
+                {selectedProduct.medida && (
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Ruler className="w-4 h-4 text-gray-600" />
+                      <span className="text-xs font-semibold text-gray-500 uppercase">
+                        Medida
+                      </span>
+                    </div>
+                    <div className="text-base font-bold text-gray-900">
+                      {selectedProduct.medida}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {selectedProduct.observacion && (
+                <div className="mt-4 bg-blue-50 rounded-lg p-3 border border-blue-200">
+                  <div className="flex items-start gap-2">
+                    <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="text-xs font-semibold text-blue-700 uppercase block mb-1">
+                        Observación
+                      </span>
+                      <p className="text-sm text-blue-900">
+                        {selectedProduct.observacion}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {currentView === 'products' && (
           /* Vista de Productos */
           <div className="flex flex-col md:flex-row gap-8">
@@ -947,9 +1109,6 @@ export default function App() {
                                     <span className="text-sm text-gray-500 font-medium px-4 py-2 bg-gray-100 rounded-full">
                                       {items.length} {items.length === 1 ? 'producto' : 'productos'}
                                     </span>
-                                    <div className="text-xs text-gray-400 font-medium">
-                                      {isExpanded ? 'Click para colapsar' : 'Click para expandir'}
-                                    </div>
                                   </div>
                                 </button>
                                 
@@ -973,7 +1132,7 @@ export default function App() {
                                               product={item} 
                                               viewMode={viewMode}
                                               whatsappNumber={WHATSAPP_NUMBER}
-                                              onClick={() => setSelectedProduct(item)}
+                                              onClick={() => handleProductClick(item)}
                                             />
                                           ))}
                                         </div>
@@ -1073,14 +1232,6 @@ export default function App() {
           </div>
         )}
       </main>
-
-      {/* Modal de Detalle */}
-      <ProductDetailModal
-        product={selectedProduct}
-        isOpen={!!selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        whatsappNumber={WHATSAPP_NUMBER}
-      />
 
       {/* Botón flotante de WhatsApp */}
       <motion.a
