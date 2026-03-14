@@ -16,7 +16,9 @@ import {
   Wrench,
   Hammer,
   Sparkles,
-  Instagram
+  Instagram,
+  Menu,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { parseExcelFromUrl } from './utils/excelParser';
@@ -55,6 +57,8 @@ export default function App() {
   const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set());
   const [typePages, setTypePages] = useState<Map<string, number>>(new Map());
   const [currentView, setCurrentView] = useState<'categories' | 'products' | 'about' | 'contact'>('categories');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   
   const PRODUCTS_PER_PAGE = 20;
 
@@ -173,10 +177,10 @@ export default function App() {
     <div className="min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-red-600/5 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+        <div className="w-full px-4 lg:px-8 xl:px-12 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <motion.div 
-              className="h-16 w-auto flex items-center justify-center cursor-pointer"
+              className="h-16 w-auto flex items-center justify-start cursor-pointer"
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
               onClick={handleBackToCategories}
@@ -190,6 +194,7 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Desktop Navigation */}
             <button
               onClick={handleBackToCategories}
               className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
@@ -208,8 +213,60 @@ export default function App() {
             >
               Contacto
             </button>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Menu"
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden overflow-hidden border-t border-gray-200"
+            >
+              <div className="px-4 py-3 space-y-2">
+                <button
+                  onClick={() => {
+                    handleBackToCategories();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  Inicio
+                </button>
+                <button
+                  onClick={() => {
+                    setCurrentView('about');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  Sobre Nosotros
+                </button>
+                <button
+                  onClick={() => {
+                    setCurrentView('contact');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  Contacto
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       <main className="w-full mx-auto px-4 lg:px-8 xl:px-12 py-8 flex-1">
@@ -586,8 +643,164 @@ export default function App() {
         {currentView === 'products' && (
           /* Vista de Productos */
           <div className="flex flex-col md:flex-row gap-8">
-            {/* Sidebar Filters */}
-            <aside className="w-full md:w-64 shrink-0 space-y-6">
+            {/* Mobile Toolbar - Barra superior con filtros y vista */}
+            <div className="md:hidden sticky top-16 z-30 -mx-4 lg:-mx-8 xl:-mx-12 px-4 py-3 bg-white border-b border-gray-200 shadow-sm mb-4">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setIsMobileFilterOpen(true)}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium text-sm"
+                >
+                  <Filter className="w-4 h-4" />
+                  Filtros y Búsqueda
+                </button>
+                <button 
+                  onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
+                  className="px-4 py-2.5 hover:bg-gray-100 rounded-lg transition-colors border border-gray-300"
+                  title="Cambiar vista"
+                >
+                  {viewMode === 'grid' ? <ListIcon className="w-5 h-5" /> : <Grid className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile Filter Drawer */}
+            <AnimatePresence>
+              {isMobileFilterOpen && (
+                <>
+                  {/* Overlay */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setIsMobileFilterOpen(false)}
+                    className="md:hidden fixed inset-0 bg-black/50 z-40"
+                  />
+                  
+                  {/* Drawer */}
+                  <motion.div
+                    initial={{ x: '-100%' }}
+                    animate={{ x: 0 }}
+                    exit={{ x: '-100%' }}
+                    transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                    className="md:hidden fixed left-0 top-0 bottom-0 w-80 bg-white z-50 overflow-y-auto shadow-2xl"
+                  >
+                    <div className="p-6 space-y-6">
+                      {/* Header del drawer */}
+                      <div className="flex items-center justify-between pb-4 border-b">
+                        <h2 className="text-lg font-bold">Filtros y Búsqueda</h2>
+                        <button
+                          onClick={() => setIsMobileFilterOpen(false)}
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+
+                      {/* Barra de búsqueda */}
+                      <div>
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3 flex items-center gap-2">
+                          <Search className="w-3 h-3" /> Buscar
+                        </h3>
+                        <div className="flex gap-2">
+                          <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input 
+                              type="text"
+                              placeholder="Buscar productos..."
+                              className="w-full pl-10 pr-10 py-2 bg-white border-2 border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-red-600 focus:border-red-600 transition-all"
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  setIsMobileFilterOpen(false);
+                                }
+                              }}
+                            />
+                            {searchTerm && (
+                              <button
+                                onClick={() => setSearchTerm('')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+                                aria-label="Limpiar búsqueda"
+                              >
+                                <X className="w-3.5 h-3.5 text-gray-500" />
+                              </button>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => setIsMobileFilterOpen(false)}
+                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
+                          >
+                            Buscar
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Botón cambiar vista */}
+                      <div>
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3 flex items-center gap-2">
+                          Vista
+                        </h3>
+                        <button 
+                          onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
+                          className="w-full flex items-center justify-center gap-2 p-3 hover:bg-gray-100 rounded-lg transition-colors border-2 border-gray-200 bg-white"
+                        >
+                          {viewMode === 'grid' ? (
+                            <>
+                              <ListIcon className="w-5 h-5" />
+                              <span className="text-sm font-medium">Vista Lista</span>
+                            </>
+                          ) : (
+                            <>
+                              <Grid className="w-5 h-5" />
+                              <span className="text-sm font-medium">Vista Cuadrícula</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      {/* Categorías */}
+                      <div>
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3 flex items-center gap-2">
+                          <Filter className="w-3 h-3" /> Categorías
+                        </h3>
+                        <div className="space-y-1">
+                          <button 
+                            onClick={() => {
+                              setSelectedCategory(null);
+                              setIsMobileFilterOpen(false);
+                            }}
+                            className={cn(
+                              "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
+                              selectedCategory === null ? "bg-red-600 text-white font-medium" : "hover:bg-gray-200"
+                            )}
+                          >
+                            Todas las categorías
+                          </button>
+                          {categories.map(cat => (
+                            <button 
+                              key={cat}
+                              onClick={() => {
+                                setSelectedCategory(cat);
+                                setIsMobileFilterOpen(false);
+                              }}
+                              className={cn(
+                                "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
+                                selectedCategory === cat ? "bg-red-600 text-white font-medium" : "hover:bg-gray-200"
+                              )}
+                            >
+                              {cat}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+
+            {/* Desktop Sidebar Filters */}
+            <aside className="hidden md:block w-64 shrink-0 space-y-6">
               {/* Barra de búsqueda */}
               <div>
                 <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
@@ -598,10 +811,19 @@ export default function App() {
                   <input 
                     type="text"
                     placeholder="Buscar productos..."
-                    className="w-full pl-10 pr-4 py-2 bg-white border-2 border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-red-600 focus:border-red-600 transition-all"
+                    className="w-full pl-10 pr-10 py-2 bg-white border-2 border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-red-600 focus:border-red-600 transition-all"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+                      aria-label="Limpiar búsqueda"
+                    >
+                      <X className="w-3.5 h-3.5 text-gray-500" />
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -743,7 +965,7 @@ export default function App() {
                                       <div className="space-y-4">
                                         <div className={cn(
                                           "grid gap-4",
-                                          viewMode === 'grid' ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
+                                          viewMode === 'grid' ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5" : "grid-cols-1"
                                         )}>
                                           {paginatedItems.map(item => (
                                             <ProductCard 
@@ -1046,53 +1268,53 @@ function ProductCard({ product, viewMode, onClick, whatsappNumber }: Readonly<Pr
         )}
       </div>
 
-      <div className="p-5">
+      <div className="p-3">
         <div className="flex flex-col h-full">
-          <div className="mb-3">
-            <h4 className="font-bold text-sm leading-tight mb-2 group-hover:text-red-600 transition-colors">
+          <div className="mb-2">
+            <h4 className="font-bold text-xs leading-tight mb-1.5 group-hover:text-red-600 transition-colors line-clamp-2">
               {product.nombre}
             </h4>
-            <div className="flex flex-wrap gap-2 mb-2">
+            <div className="flex flex-wrap gap-1.5 mb-1.5">
               {product.calibre && (
-                <span className="text-xs font-bold bg-red-50 text-red-700 px-2.5 py-1 rounded-md uppercase tracking-wide border border-red-200">
+                <span className="text-[10px] font-bold bg-red-50 text-red-700 px-2 py-0.5 rounded-md uppercase tracking-wide border border-red-200">
                   Cal: {product.calibre}
                 </span>
               )}
               {product.medida && (
-                <span className="text-xs font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md tracking-wide border border-blue-200">
+                <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md tracking-wide border border-blue-200">
                   {product.medida}
                 </span>
               )}
             </div>
           </div>
 
-          <div className="mt-auto pt-4 flex items-center justify-between border-t border-gray-50">
+          <div className="mt-auto pt-2 flex items-center justify-between border-t border-gray-50">
             {hasPrice ? (
               <div className="flex flex-col">
-                <span className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Precio</span>
-                <span className="text-sm font-bold">
+                <span className="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Precio</span>
+                <span className="text-xs font-bold">
                   {typeof product.precio === 'number' ? `$${product.precio.toFixed(2)}` : product.precio}
                 </span>
               </div>
             ) : (
               <button
                 onClick={handleWhatsAppClick}
-                className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-bold transition-colors"
+                className="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white px-2 py-1.5 rounded-lg text-[10px] font-bold transition-colors"
               >
-                <MessageCircle className="w-4 h-4" />
+                <MessageCircle className="w-3 h-3" />
                 Consultar precio
               </button>
             )}
             {product.presentacion && (
               <div className="text-right">
-                <span className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Venta</span>
-                <span className="block text-xs font-medium text-gray-600">{product.presentacion}</span>
+                <span className="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Venta</span>
+                <span className="block text-[10px] font-medium text-gray-600">{product.presentacion}</span>
               </div>
             )}
           </div>
           
           {product.observacion && (
-            <div className="mt-3 text-[10px] text-gray-400 italic line-clamp-1">
+            <div className="mt-2 text-[9px] text-gray-400 italic line-clamp-1">
               * {product.observacion}
             </div>
           )}
