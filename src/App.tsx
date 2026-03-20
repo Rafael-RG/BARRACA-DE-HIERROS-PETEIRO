@@ -63,6 +63,7 @@ export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
+  const mobileSearchInputRef = React.useRef<HTMLInputElement>(null);
   
   const PRODUCTS_PER_PAGE = 20;
 
@@ -195,7 +196,7 @@ export default function App() {
     setTypePages(new Map());
   }, [searchTerm, selectedCategory]);
 
-  // Expandir todas las secciones cuando hay búsqueda activa
+  // Expandir todas las secciones cuando hay búsqueda activa, colapsar cuando está vacía
   useEffect(() => {
     if (searchTerm.trim()) {
       const allKeys = new Set<string>();
@@ -205,6 +206,9 @@ export default function App() {
         });
       });
       setExpandedTypes(allKeys);
+    } else {
+      // Colapsar todas las secciones cuando la búsqueda está vacía
+      setExpandedTypes(new Set());
     }
   }, [searchTerm, groupedProducts]);
 
@@ -215,12 +219,21 @@ export default function App() {
 
   // Enfocar el input de búsqueda cuando se cambia a la vista de productos
   useEffect(() => {
-    if (currentView === 'products' && searchTerm && searchInputRef.current) {
+    if (currentView === 'products' && searchInputRef.current) {
       setTimeout(() => {
         searchInputRef.current?.focus();
       }, 100);
     }
-  }, [currentView, searchTerm]);
+  }, [currentView]);
+
+  // Enfocar el input móvil cuando se abre el drawer
+  useEffect(() => {
+    if (isMobileFilterOpen && mobileSearchInputRef.current) {
+      setTimeout(() => {
+        mobileSearchInputRef.current?.focus();
+      }, 100);
+    }
+  }, [isMobileFilterOpen]);
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans flex flex-col">
@@ -458,30 +471,39 @@ export default function App() {
               <h2 className="text-4xl font-bold tracking-tight mb-4">Nuestro Catálogo</h2>
               <p className="text-lg text-gray-600 mb-6">Selecciona una categoría para ver nuestros productos</p>
               
-              {/* Buscador rápido */}
+              {/* Buscador rápido - Atajo visual */}
               <div className="max-w-xl mx-auto">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <div 
+                  className="relative cursor-text"
+                  onClick={() => {
+                    setSelectedCategory(null);
+                    setCurrentView('products');
+                    // En móvil, abrir el drawer de filtros
+                    if (window.innerWidth < 768) {
+                      setTimeout(() => setIsMobileFilterOpen(true), 100);
+                    }
+                  }}
+                >
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   <input 
                     type="text"
                     placeholder="Buscar productos..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border-2 border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-red-600 focus:border-red-600 transition-all shadow-sm"
-                    value={searchTerm}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setSearchTerm(value);
-                      if (value.trim()) {
-                        setSelectedCategory(null);
-                        setCurrentView('products');
+                    className="w-full pl-10 pr-4 py-2.5 bg-white border-2 border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-red-600 focus:border-red-600 transition-all shadow-sm cursor-text"
+                    readOnly
+                    onClick={() => {
+                      setSelectedCategory(null);
+                      setCurrentView('products');
+                      // En móvil, abrir el drawer de filtros
+                      if (window.innerWidth < 768) {
+                        setTimeout(() => setIsMobileFilterOpen(true), 100);
                       }
                     }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        const searchValue = e.currentTarget.value.trim();
-                        if (searchValue) {
-                          setSelectedCategory(null);
-                          setCurrentView('products');
-                        }
+                    onFocus={() => {
+                      setSelectedCategory(null);
+                      setCurrentView('products');
+                      // En móvil, abrir el drawer de filtros
+                      if (window.innerWidth < 768) {
+                        setTimeout(() => setIsMobileFilterOpen(true), 100);
                       }
                     }}
                   />
@@ -1025,6 +1047,7 @@ export default function App() {
                           <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <input 
+                              ref={mobileSearchInputRef}
                               type="text"
                               placeholder="Buscar productos..."
                               className="w-full pl-10 pr-10 py-2 bg-white border-2 border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-red-600 focus:border-red-600 transition-all"
@@ -1285,9 +1308,9 @@ export default function App() {
                                           "grid gap-4",
                                           viewMode === 'grid' ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5" : "grid-cols-1"
                                         )}>
-                                          {paginatedItems.map(item => (
+                                          {paginatedItems.map((item, idx) => (
                                             <ProductCard 
-                                              key={item.id} 
+                                              key={`${typeKey}-${item.id}-${idx}`} 
                                               product={item} 
                                               viewMode={viewMode}
                                               whatsappNumber={WHATSAPP_NUMBER}

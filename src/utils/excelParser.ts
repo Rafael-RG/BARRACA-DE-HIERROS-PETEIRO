@@ -43,11 +43,19 @@ const mapRowToProduct = (row: any, index: number): Product => {
     console.log(`Producto ${index}: SIN IMAGEN - Campos disponibles:`, Object.keys(row).filter(k => k.toLowerCase().includes('imagen')));
   }
 
+  const nombre = findField(row, ['Nombre ', 'Nombre', 'nombre', 'NOMBRE', 'Producto', 'producto']) || '';
+  const categoria = findField(row, ['Categoría', 'categoria', 'Categoria', 'CATEGORIA']) || 'General';
+  const tipo = findField(row, ['Tipo', 'tipo', 'TIPO']) || 'Varios';
+  
+  // Generar un ID único basado en el contenido y el índice
+  const idBase = `${categoria}-${tipo}-${nombre}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').substring(0, 50);
+  const id = `${idBase}-${index}`;
+  
   return {
-    id: `prod-${index}`,
-    nombre: findField(row, ['Nombre ', 'Nombre', 'nombre', 'NOMBRE', 'Producto', 'producto']) || '',
-    categoria: findField(row, ['Categoría', 'categoria', 'Categoria', 'CATEGORIA']) || 'General',
-    tipo: findField(row, ['Tipo', 'tipo', 'TIPO']) || 'Varios',
+    id,
+    nombre,
+    categoria,
+    tipo,
     calibre: findField(row, ['Calibre (")', 'Calibre (mm)', 'Calibre', 'calibre', 'CALIBRE', 'Espesor', 'espesor', 'ESPESOR']),
     medida,
     precio: findField(row, ['Precio(IVAInc.)', 'Precio (IVA Inc.)', 'Precio', 'precio', 'PRECIO', 'Precio en lista', 'Valor', 'valor']),
