@@ -203,7 +203,7 @@ export default function App() {
     <div className="min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-red-600/5 sticky top-0 z-30">
-        <div className="w-full px-4 lg:px-8 xl:px-12 h-16 flex items-center justify-between gap-4">
+        <div className="w-full px-8 lg:px-20 xl:px-32 2xl:px-40 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <motion.div 
               className="h-16 w-auto flex items-center justify-start cursor-pointer"
@@ -295,7 +295,7 @@ export default function App() {
         </AnimatePresence>
       </header>
 
-      <main className="w-full mx-auto px-4 lg:px-8 xl:px-12 py-8 flex-1">
+      <main className="w-full mx-auto px-8 lg:px-20 xl:px-32 2xl:px-40 py-8 flex-1">
         {/* Loading State - Barra de progreso centrada */}
         {isLoading && (
           <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-40 flex items-center justify-center">
@@ -373,7 +373,65 @@ export default function App() {
         {currentView === 'categories' && (
           /* Vista de Categorías */
           <div className="space-y-8">
-            <div className="text-center max-w-2xl mx-auto">
+            {/* Banner Hero */}
+            <div className="relative bg-gradient-to-r from-red-900 via-red-700 to-red-900 rounded-3xl overflow-hidden shadow-2xl">
+              {/* Imagen de fondo del banner */}
+              <div className="absolute inset-0 opacity-20">
+                <img 
+                  src="/Imagenes/Banner/banner-hierros.jpg" 
+                  alt="Banner Hierros Peteiro"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              {/* Patrón de textura metálica */}
+              <div className="absolute inset-0 bg-gradient-to-br from-black/30 via-transparent to-black/30" />
+              
+              {/* Contenido del banner */}
+              <div className="relative z-10 px-6 md:px-12 py-16 md:py-20">
+                <div className="max-w-4xl mx-auto text-center">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                  >
+                    <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 tracking-tight">
+                      Barraca de Hierros Peteiro
+                    </h1>
+                    <p className="text-xl md:text-2xl text-red-100 mb-6 font-light">
+                      Más de 20 años construyendo con vos
+                    </p>
+                    <p className="text-base md:text-lg text-red-50/90 mb-8 max-w-2xl mx-auto">
+                      Materiales de calidad para tu obra. Servicio personalizado en Parque del Plata y Punta del Diablo.
+                    </p>
+                    
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                      <a
+                        href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                      >
+                        <MessageCircle className="w-6 h-6" />
+                        Contactar por WhatsApp
+                      </a>
+                      <button
+                        onClick={() => setCurrentView('about')}
+                        className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border-2 border-white/30 px-8 py-4 rounded-full font-semibold text-lg transition-all"
+                      >
+                        Conocer más
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+              
+              {/* Decoración inferior */}
+              <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-red-800 via-red-600 to-red-800" />
+            </div>
+
+            <div className="text-center max-w-2xl mx-auto pt-8">
               <h2 className="text-4xl font-bold tracking-tight mb-4">Nuestro Catálogo</h2>
               <p className="text-lg text-gray-600">Selecciona una categoría para ver nuestros productos</p>
             </div>
@@ -458,15 +516,46 @@ export default function App() {
         {currentView === 'about' && (
           /* Vista de Sobre Nosotros */
           <div className="max-w-4xl mx-auto space-y-8">
-            <div className="text-center">
-              <div className="flex justify-center mb-6">
+            {/* Hero con imagen de fondo */}
+            <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl overflow-hidden shadow-2xl">
+              {/* Imagen de fondo */}
+              <div className="absolute inset-0 opacity-30">
                 <img 
-                  src="/Imagenes/Logo/Barraca_De_Hierros_Peteiro.png" 
-                  alt="Barraca de Hierros Peteiro"
-                  className="h-32 w-auto object-contain rounded-2xl shadow-lg"
+                  src="/Imagenes/Banner/sobre-nosotros.jpg" 
+                  alt="Sobre Nosotros - Barraca de Hierros Peteiro"
+                  className="w-full h-full object-cover"
                 />
               </div>
-              <h2 className="text-4xl font-bold tracking-tight mb-4 text-red-600">Sobre Nosotros</h2>
+              
+              {/* Overlay oscuro */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
+              
+              {/* Contenido */}
+              <div className="relative z-10 px-6 md:px-12 py-16 text-center">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  className="flex flex-col items-center"
+                >
+                  <div className="mb-6 bg-white/10 backdrop-blur-sm p-4 rounded-2xl">
+                    <img 
+                      src="/Imagenes/Logo/Barraca_De_Hierros_Peteiro.png" 
+                      alt="Barraca de Hierros Peteiro"
+                      className="h-24 w-auto object-contain"
+                    />
+                  </div>
+                  <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white">
+                    Sobre Nosotros
+                  </h2>
+                  <p className="text-lg md:text-xl text-gray-200 max-w-2xl">
+                    Más de 20 años construyendo confianza y calidad
+                  </p>
+                </motion.div>
+              </div>
+              
+              {/* Decoración inferior */}
+              <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-red-800 via-red-600 to-red-800" />
             </div>
 
             {/* Sección: Quiénes Somos */}
@@ -540,12 +629,12 @@ export default function App() {
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="text-center">
               <h2 className="text-4xl font-bold tracking-tight mb-4 text-red-600">Contacto</h2>
-              <p className="text-lg text-gray-600">Estamos para ayudarte</p>
+              <p className="text-lg text-gray-600 mb-2">Estamos para ayudarte en tu proyecto</p>
+              <p className="text-base text-gray-500">Comunicate con nosotros por cualquiera de estos canales</p>
             </div>
 
             {/* Sección: Contáctanos */}
             <div className="bg-white rounded-3xl p-8 shadow-lg border border-red-600/10">
-              <h3 className="text-2xl font-bold mb-6 text-center">Canales de Contacto</h3>
               <div className="grid md:grid-cols-3 gap-6">
                 <a
                   href={`https://wa.me/${WHATSAPP_NUMBER}`}
@@ -562,16 +651,16 @@ export default function App() {
                   </div>
                 </a>
 
-                <div className="flex flex-col items-center gap-3 p-6 bg-red-50 rounded-2xl">
-                  <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center">
+                <div className="flex flex-col items-center gap-3 p-6 bg-blue-50 rounded-2xl">
+                  <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
                     <Phone className="w-8 h-8 text-white" />
                   </div>
                   <div className="text-center">
-                    <div className="font-bold text-lg mb-2">Teléfonos</div>
-                    <a href="tel:096610184" className="block text-sm text-gray-700 hover:text-red-600 font-medium transition-colors">
+                    <div className="font-bold text-lg mb-2">Llamadas</div>
+                    <a href="tel:096610184" className="block text-sm text-gray-700 hover:text-blue-600 font-medium transition-colors">
                       096 610 184
                     </a>
-                    <a href="tel:096407663" className="block text-sm text-gray-700 hover:text-red-600 font-medium transition-colors">
+                    <a href="tel:096407663" className="block text-sm text-gray-700 hover:text-blue-600 font-medium transition-colors">
                       096 407 663
                     </a>
                   </div>
@@ -596,7 +685,10 @@ export default function App() {
 
             {/* Sección: Sucursales */}
             <div className="bg-white rounded-3xl p-8 shadow-lg border border-red-600/10">
-              <h3 className="text-2xl font-bold mb-6 text-center">Nuestras Sucursales</h3>
+              <h3 className="text-2xl font-bold mb-3 text-center">Nuestras Sucursales</h3>
+              <p className="text-center text-gray-600 mb-6 max-w-2xl mx-auto">
+                Contamos con dos locales estratégicamente ubicados en la costa este del país para estar más cerca de tu obra
+              </p>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-gray-50 rounded-2xl overflow-hidden">
                   <div className="aspect-video w-full">
