@@ -62,6 +62,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState<'categories' | 'products' | 'about' | 'contact' | 'productDetail'>('categories');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
   
   const PRODUCTS_PER_PAGE = 20;
 
@@ -194,10 +195,32 @@ export default function App() {
     setTypePages(new Map());
   }, [searchTerm, selectedCategory]);
 
+  // Expandir todas las secciones cuando hay búsqueda activa
+  useEffect(() => {
+    if (searchTerm.trim()) {
+      const allKeys = new Set<string>();
+      Object.entries(groupedProducts).forEach(([category, types]) => {
+        Object.keys(types).forEach(type => {
+          allKeys.add(`${category}-${type}`);
+        });
+      });
+      setExpandedTypes(allKeys);
+    }
+  }, [searchTerm, groupedProducts]);
+
   // Scroll al inicio cuando cambie de vista
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentView]);
+
+  // Enfocar el input de búsqueda cuando se cambia a la vista de productos
+  useEffect(() => {
+    if (currentView === 'products' && searchTerm && searchInputRef.current) {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+    }
+  }, [currentView, searchTerm]);
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans flex flex-col">
@@ -431,9 +454,39 @@ export default function App() {
               <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-red-800 via-red-600 to-red-800" />
             </div>
 
-            <div className="text-center max-w-2xl mx-auto pt-8">
+            <div className="text-center max-w-2xl mx-auto pt-4">
               <h2 className="text-4xl font-bold tracking-tight mb-4">Nuestro Catálogo</h2>
-              <p className="text-lg text-gray-600">Selecciona una categoría para ver nuestros productos</p>
+              <p className="text-lg text-gray-600 mb-6">Selecciona una categoría para ver nuestros productos</p>
+              
+              {/* Buscador rápido */}
+              <div className="max-w-xl mx-auto">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input 
+                    type="text"
+                    placeholder="Buscar productos..."
+                    className="w-full pl-10 pr-4 py-2.5 bg-white border-2 border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-red-600 focus:border-red-600 transition-all shadow-sm"
+                    value={searchTerm}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setSearchTerm(value);
+                      if (value.trim()) {
+                        setSelectedCategory(null);
+                        setCurrentView('products');
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const searchValue = e.currentTarget.value.trim();
+                        if (searchValue) {
+                          setSelectedCategory(null);
+                          setCurrentView('products');
+                        }
+                      }
+                    }}
+                  />
+                </div>
+              </div>
             </div>
 
             <motion.div 
@@ -1076,6 +1129,7 @@ export default function App() {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input 
+                    ref={searchInputRef}
                     type="text"
                     placeholder="Buscar productos..."
                     className="w-full pl-10 pr-10 py-2 bg-white border-2 border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-red-600 focus:border-red-600 transition-all"
