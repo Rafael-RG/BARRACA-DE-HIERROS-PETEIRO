@@ -431,13 +431,13 @@ export default function App() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                   >
-                    <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 tracking-tight">
+                    <h1 className="text-3xl md:text-6xl font-bold text-white mb-3 md:mb-4 tracking-tight">
                       Barraca de Hierros Peteiro
                     </h1>
-                    <p className="text-xl md:text-2xl text-red-100 mb-6 font-light">
+                    <p className="text-lg md:text-2xl text-red-100 mb-4 md:mb-6 font-light">
                       Más de 20 años construyendo con vos
                     </p>
-                    <p className="text-base md:text-lg text-red-50/90 mb-8 max-w-2xl mx-auto">
+                    <p className="text-sm md:text-lg text-red-50/90 mb-6 md:mb-8 max-w-2xl mx-auto">
                       Materiales de calidad para tu obra. Servicio personalizado en Parque del Plata y Punta del Diablo.
                     </p>
                     
@@ -468,8 +468,8 @@ export default function App() {
             </div>
 
             <div className="text-center max-w-2xl mx-auto pt-4">
-              <h2 className="text-4xl font-bold tracking-tight mb-4">Nuestro Catálogo</h2>
-              <p className="text-lg text-gray-600 mb-6">Selecciona una categoría para ver nuestros productos</p>
+              <h2 className="text-2xl md:text-4xl font-bold tracking-tight mb-3 md:mb-4">Nuestro Catálogo</h2>
+              <p className="text-base md:text-lg text-gray-600 mb-4 md:mb-6">Selecciona una categoría para ver nuestros productos</p>
               
               {/* Buscador rápido - Atajo visual */}
               <div className="max-w-xl mx-auto">
@@ -512,7 +512,7 @@ export default function App() {
             </div>
 
             <motion.div 
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              className="grid grid-cols-2 lg:grid-cols-3 gap-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
@@ -526,7 +526,7 @@ export default function App() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
                     whileHover={{ scale: 1.02 }}
-                    className="group relative bg-white border-2 border-red-600/5 rounded-3xl p-8 hover:border-red-600 hover:shadow-2xl transition-all duration-300 text-left overflow-hidden"
+                    className="group relative bg-white border-2 border-red-600/5 rounded-3xl p-4 md:p-8 hover:border-red-600 hover:shadow-2xl transition-all duration-300 text-left overflow-hidden"
                   >
                     {/* Background Pattern */}
                     <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -548,7 +548,7 @@ export default function App() {
                     
                     <div className="relative z-10">
                       <motion.div 
-                        className="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden"
+                        className="w-12 h-12 md:w-16 md:h-16 bg-red-600 rounded-2xl flex items-center justify-center mb-3 md:mb-6 relative overflow-hidden"
                         whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
                         transition={{ duration: 0.3 }}
                       >
@@ -565,20 +565,20 @@ export default function App() {
                             ease: "easeInOut"
                           }}
                         />
-                        <Package className="w-8 h-8 text-white relative z-10" />
+                        <Package className="w-6 h-6 md:w-8 md:h-8 text-white relative z-10" />
                       </motion.div>
                       
-                      <h3 className="text-2xl font-bold mb-2 group-hover:text-red-600 transition-colors">
+                      <h3 className="text-lg md:text-2xl font-bold mb-1 md:mb-2 group-hover:text-red-600 transition-colors">
                         {category}
                       </h3>
                       
-                      <p className="text-gray-500 text-sm mb-4">
+                      <p className="text-gray-500 text-xs md:text-sm mb-2 md:mb-4">
                         {categoryProducts.length} {categoryProducts.length === 1 ? 'producto' : 'productos'}
                       </p>
                       
-                      <div className="flex items-center gap-2 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-2 text-xs md:text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                         Ver productos
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
                       </div>
                     </div>
                   </motion.button>
