@@ -331,7 +331,7 @@ export default function App() {
         </AnimatePresence>
       </header>
 
-      <main className="w-full mx-auto px-8 lg:px-20 xl:px-32 2xl:px-40 py-8 flex-1">
+      <main className="w-full mx-auto px-8 lg:px-32 xl:px-48 2xl:px-64 py-8 flex-1">
         {/* Loading State - Barra de progreso centrada */}
         {isLoading && (
           <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-40 flex items-center justify-center">
@@ -410,7 +410,7 @@ export default function App() {
           /* Vista de Categorías */
           <div className="space-y-8">
             {/* Banner Hero */}
-            <div className="relative bg-gradient-to-r from-red-900 via-red-700 to-red-900 rounded-3xl overflow-hidden shadow-2xl">
+            <div className="relative bg-gradient-to-r from-red-900 via-red-700 to-red-900 rounded-3xl overflow-hidden shadow-2xl lg:-mx-16 xl:-mx-24 2xl:-mx-32">
               {/* Imagen de fondo del banner */}
               <div className="absolute inset-0 opacity-20">
                 <img 
@@ -424,20 +424,20 @@ export default function App() {
               <div className="absolute inset-0 bg-gradient-to-br from-black/30 via-transparent to-black/30" />
               
               {/* Contenido del banner */}
-              <div className="relative z-10 px-6 md:px-12 py-16 md:py-20">
+              <div className="relative z-10 px-6 md:px-12 py-14 md:py-20">
                 <div className="max-w-4xl mx-auto text-center">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                   >
-                    <h1 className="text-3xl md:text-6xl font-bold text-white mb-3 md:mb-4 tracking-tight">
+                    <h1 className="text-2xl md:text-6xl font-bold text-white mb-2 md:mb-4 tracking-tight">
                       Barraca de Hierros Peteiro
                     </h1>
-                    <p className="text-lg md:text-2xl text-red-100 mb-4 md:mb-6 font-light">
+                    <p className="text-base md:text-2xl text-red-100 mb-3 md:mb-6 font-light">
                       Más de 20 años construyendo con vos
                     </p>
-                    <p className="text-sm md:text-lg text-red-50/90 mb-6 md:mb-8 max-w-2xl mx-auto">
+                    <p className="text-xs md:text-lg text-red-50/90 mb-4 md:mb-8 max-w-2xl mx-auto">
                       Materiales de calidad para tu obra. Servicio personalizado en Parque del Plata y Punta del Diablo.
                     </p>
                     
@@ -446,14 +446,14 @@ export default function App() {
                         href={`https://wa.me/${WHATSAPP_NUMBER}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                        className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 md:px-8 py-3 md:py-4 rounded-full font-semibold text-base md:text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105"
                       >
                         <MessageCircle className="w-6 h-6" />
                         Contactar por WhatsApp
                       </a>
                       <button
                         onClick={() => setCurrentView('about')}
-                        className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border-2 border-white/30 px-8 py-4 rounded-full font-semibold text-lg transition-all"
+                        className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border-2 border-white/30 px-6 md:px-8 py-3 md:py-4 rounded-full font-semibold text-base md:text-lg transition-all"
                       >
                         Conocer más
                         <ChevronRight className="w-5 h-5" />
@@ -526,10 +526,25 @@ export default function App() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
                     whileHover={{ scale: 1.02 }}
-                    className="group relative bg-white border-2 border-red-600/5 rounded-3xl p-4 md:p-8 hover:border-red-600 hover:shadow-2xl transition-all duration-300 text-left overflow-hidden"
+                    className="group relative bg-white border-2 border-red-600/5 rounded-3xl hover:border-red-600 hover:shadow-2xl transition-all duration-300 text-left overflow-hidden"
                   >
-                    {/* Background Pattern */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {/* Imagen de fondo que cubre toda la tarjeta */}
+                    <div className="absolute inset-0">
+                      <SmartImage
+                        basePath="/Imagenes/Categorias"
+                        fileName={category}
+                        alt={category}
+                        className="w-full h-full object-cover"
+                        fallbackElement={
+                          <div className="w-full h-full bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center">
+                            <Package className="w-16 h-16 md:w-24 md:h-24 text-white/30" />
+                          </div>
+                        }
+                      />
+                    </div>
+                    
+                    {/* Overlay oscuro para legibilidad */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20 group-hover:from-black/80 group-hover:via-black/50 transition-all" />
                     
                     {/* Brillo metálico en hover */}
                     <motion.div
@@ -542,41 +557,20 @@ export default function App() {
                     />
                     
                     {/* Chispas decorativas */}
-                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Sparkles className="w-5 h-5 text-red-600/40" />
+                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                      <Sparkles className="w-5 h-5 text-white/60" />
                     </div>
                     
-                    <div className="relative z-10">
-                      <motion.div 
-                        className="w-12 h-12 md:w-16 md:h-16 bg-red-600 rounded-2xl flex items-center justify-center mb-3 md:mb-6 relative overflow-hidden"
-                        whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        {/* Pulso de fondo */}
-                        <motion.div
-                          className="absolute inset-0 bg-red-400 rounded-2xl"
-                          animate={{
-                            scale: [1, 1.2, 1],
-                            opacity: [0.5, 0, 0.5]
-                          }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                        />
-                        <Package className="w-6 h-6 md:w-8 md:h-8 text-white relative z-10" />
-                      </motion.div>
-                      
-                      <h3 className="text-lg md:text-2xl font-bold mb-1 md:mb-2 group-hover:text-red-600 transition-colors">
+                    <div className="relative z-10 p-3 md:p-5 flex flex-col justify-end min-h-[140px] md:min-h-[180px]">
+                      <h3 className="text-lg md:text-2xl font-bold mb-1 md:mb-2 text-white group-hover:text-red-300 transition-colors">
                         {category}
                       </h3>
                       
-                      <p className="text-gray-500 text-xs md:text-sm mb-2 md:mb-4">
+                      <p className="text-white/80 text-xs md:text-sm mb-2 md:mb-4">
                         {categoryProducts.length} {categoryProducts.length === 1 ? 'producto' : 'productos'}
                       </p>
                       
-                      <div className="flex items-center gap-2 text-xs md:text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-2 text-xs md:text-sm font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity">
                         Ver productos
                         <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
                       </div>
