@@ -22,7 +22,8 @@ import {
   DollarSign,
   Ruler,
   Tag,
-  Info
+  Info,
+  Truck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { parseExcelFromUrl } from './utils/excelParser';
@@ -331,7 +332,7 @@ export default function App() {
         </AnimatePresence>
       </header>
 
-      <main className="w-full mx-auto px-8 lg:px-32 xl:px-48 2xl:px-64 py-8 flex-1">
+      <main className="w-full mx-auto px-8 lg:px-32 xl:px-48 2xl:px-64 pt-8 pb-0 flex-1">
         {/* Loading State - Barra de progreso centrada */}
         {isLoading && (
           <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-40 flex items-center justify-center">
@@ -579,12 +580,116 @@ export default function App() {
                 );
               })}
             </motion.div>
+
+            {/* Título y Sección de Servicios */}
+            <div className="text-center pt-8 pb-4">
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-2">¿Necesitás algo más?</h2>
+              <p className="text-base md:text-lg text-gray-600">Conocé nuestros servicios adicionales</p>
+            </div>
+
+            {/* Sección de Envíos y Sucursales */}
+            <div className="grid md:grid-cols-2 gap-4 pb-8">
+              {/* Frame de Envíos */}
+              <motion.div 
+                className="relative bg-gradient-to-br from-red-700/90 to-red-600/90 overflow-hidden rounded-2xl shadow-lg py-8 md:py-10 px-6"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <div className="relative z-10 text-center">
+                  <div className="inline-flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-white/20 rounded-full mb-3">
+                    <Truck className="w-6 h-6 md:w-7 md:h-7 text-white" />
+                  </div>
+                  <h3 className="text-lg md:text-xl font-bold text-white mb-1">
+                    ¡Hacé tu pedido!
+                  </h3>
+                  <p className="text-sm md:text-base text-white/90">
+                    Envíos a toda la costa de oro y Rocha.
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Frame de Sucursales - Clickeable */}
+              <motion.button
+                onClick={() => {
+                  setCurrentView('contact');
+                  // Scroll a la sección de sucursales después de cambiar la vista
+                  setTimeout(() => {
+                    const sucursalesElement = document.getElementById('sucursales');
+                    if (sucursalesElement) {
+                      sucursalesElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                  }, 100);
+                }}
+                className="relative bg-gradient-to-br from-red-600/90 to-red-500/90 overflow-hidden rounded-2xl shadow-lg py-8 md:py-10 px-6 hover:from-red-500/90 hover:to-red-400/90 transition-all group"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.25 }}
+                whileHover={{ scale: 1.02 }}
+              >
+                <div className="relative z-10 text-center">
+                  <div className="inline-flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-white/20 rounded-full mb-3 group-hover:bg-white/30 transition-colors">
+                    <MapPin className="w-6 h-6 md:w-7 md:h-7 text-white" />
+                  </div>
+                  <h3 className="text-lg md:text-xl font-bold text-white mb-1">
+                    Visitá nuestras sucursales
+                  </h3>
+                  <p className="text-sm md:text-base text-white/90 group-hover:text-white transition-colors flex items-center justify-center gap-1">
+                    Ver ubicaciones
+                    <ChevronRight className="w-4 h-4" />
+                  </p>
+                </div>
+              </motion.button>
+            </div>
+
+            {/* Sección de Asesoramiento CTA */}
+            <motion.div 
+              className="relative bg-gradient-to-br from-[#d32419]/90 via-[#d32419]/80 to-[#d32419]/90 overflow-hidden shadow-2xl -mx-8 lg:-mx-32 xl:-mx-48 2xl:-mx-64"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              {/* Overlay de brillo */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+              
+              <div className="relative z-10 px-8 py-10 md:py-12 text-center">
+                <motion.div
+                  initial={{ scale: 0.9 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <h2 className="text-xl md:text-3xl font-bold text-white mb-4 md:mb-6 tracking-tight">
+                    Recibí asesoramiento y presupuesto a través de WhatsApp
+                  </h2>
+                  
+                  <motion.a
+                    href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-[#d32419] px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-sm md:text-base transition-all shadow-xl hover:shadow-2xl group"
+                    animate={{ 
+                      scale: [1, 1.1, 1],
+                      y: [0, -5, 0],
+                    }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    whileHover={{ scale: 1.15 }}
+                  >
+                    <MessageCircle className="w-5 h-5 md:w-6 md:h-6" />
+                    Clic aquí
+                  </motion.a>
+                </motion.div>
+              </div>
+            </motion.div>
           </div>
         )}
 
         {currentView === 'about' && (
           /* Vista de Sobre Nosotros */
-          <div className="max-w-4xl mx-auto space-y-8">
+          <div className="max-w-4xl mx-auto space-y-8 pb-8">
             {/* Hero con imagen de fondo */}
             <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl overflow-hidden shadow-2xl">
               {/* Imagen de fondo */}
@@ -680,22 +785,12 @@ export default function App() {
                 – Familia Peteiro
               </p>
             </div>
-
-            <div className="text-center pt-8">
-              <button
-                onClick={handleBackToCategories}
-                className="bg-red-600 text-white py-3 px-8 rounded-full font-medium hover:bg-red-700 transition-colors inline-flex items-center gap-2"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                Volver al Catálogo
-              </button>
-            </div>
           </div>
         )}
 
         {currentView === 'contact' && (
           /* Vista de Contacto */
-          <div className="max-w-4xl mx-auto space-y-8">
+          <div className="max-w-4xl mx-auto space-y-8 pb-8">
             <div className="text-center">
               <h2 className="text-4xl font-bold tracking-tight mb-4 text-red-600">Contacto</h2>
               <p className="text-lg text-gray-600 mb-2">Estamos para ayudarte en tu proyecto</p>
@@ -753,7 +848,7 @@ export default function App() {
             </div>
 
             {/* Sección: Sucursales */}
-            <div className="bg-white rounded-3xl p-8 shadow-lg border border-red-600/10">
+            <div id="sucursales" className="bg-white rounded-3xl p-8 shadow-lg border border-red-600/10">
               <h3 className="text-2xl font-bold mb-3 text-center">Nuestras Sucursales</h3>
               <p className="text-center text-gray-600 mb-6 max-w-2xl mx-auto">
                 Contamos con dos locales estratégicamente ubicados en la costa este del país para estar más cerca de tu obra
@@ -814,16 +909,6 @@ export default function App() {
                 </div>
               </div>
             </div>
-
-            <div className="text-center pt-8">
-              <button
-                onClick={handleBackToCategories}
-                className="bg-red-600 text-white py-3 px-8 rounded-full font-medium hover:bg-red-700 transition-colors inline-flex items-center gap-2"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                Volver al Catálogo
-              </button>
-            </div>
           </div>
         )}
 
@@ -842,10 +927,6 @@ export default function App() {
             {/* Header del producto */}
             <div className="bg-white rounded-lg p-4 border border-gray-200">
               <div className="flex flex-col md:flex-row gap-4">
-                {/* Icono/Imagen en el header */}
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
-                  <Package className="w-6 h-6 text-gray-600" />
-                </div>
                 <div className="flex-1">
                   <h1 className="text-xl md:text-2xl font-bold leading-tight mb-2">
                     {selectedProduct.nombre}
@@ -878,16 +959,15 @@ export default function App() {
 
             {/* Precio */}
             <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-              <div className="flex items-center gap-2 mb-3">
-                <DollarSign className="w-5 h-5 text-green-700" />
+              <div className="mb-3">
                 <h2 className="text-lg font-bold text-green-900">Precio</h2>
               </div>
               {(selectedProduct.precio && ((typeof selectedProduct.precio === 'number' && selectedProduct.precio > 0) || (typeof selectedProduct.precio === 'string' && selectedProduct.precio.trim() !== '' && selectedProduct.precio.trim() !== '-'))) ? (
                 <>
                   <div className="text-3xl md:text-4xl font-bold text-green-700">
                     {typeof selectedProduct.precio === 'number'
-                      ? `$${selectedProduct.precio.toFixed(2)}`
-                      : selectedProduct.precio}
+                      ? `U$S ${selectedProduct.precio.toFixed(2)}`
+                      : (selectedProduct.precio.startsWith('U$S') || selectedProduct.precio.startsWith('$') ? selectedProduct.precio : `U$S ${selectedProduct.precio}`)}
                   </div>
                   {selectedProduct.presentacion && (
                     <p className="text-sm text-green-700 mt-2">
@@ -1437,7 +1517,7 @@ export default function App() {
       </motion.a>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white mt-auto">
+      <footer className="bg-black text-white">
         <div className="max-w-7xl mx-auto px-4 py-8 text-center">
           <p className="text-sm text-gray-400 mb-2">
             Copyright © 2025 Barraca de Hierros Peteiro
@@ -1491,9 +1571,9 @@ function ProductCard({ product, viewMode, onClick, whatsappNumber }: Readonly<Pr
         onClick={onClick}
         className="bg-white border border-red-600/5 rounded-2xl overflow-hidden hover:shadow-xl hover:border-red-600/10 transition-all group cursor-pointer p-4"
       >
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3 md:gap-6">
           {/* Image */}
-          <div className="bg-gray-100 shrink-0 relative overflow-hidden w-32 h-32 rounded-xl">
+          <div className="bg-gray-100 shrink-0 relative overflow-hidden w-20 md:w-32 h-20 md:h-32 rounded-xl">
             {product.imagen ? (
               <SmartImage
                 basePath="/Imagenes/Productos"
@@ -1503,7 +1583,7 @@ function ProductCard({ product, viewMode, onClick, whatsappNumber }: Readonly<Pr
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-300">
-                <Package className="w-12 h-12" />
+                <Package className="w-8 md:w-12 h-8 md:h-12" />
               </div>
             )}
           </div>
@@ -1548,7 +1628,9 @@ function ProductCard({ product, viewMode, onClick, whatsappNumber }: Readonly<Pr
                 <div className="text-right">
                   <span className="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-1">Precio</span>
                   <span className="text-2xl font-bold text-red-600">
-                    {typeof product.precio === 'number' ? `$${product.precio.toFixed(2)}` : product.precio}
+                    {typeof product.precio === 'number' 
+                      ? `U$S ${product.precio.toFixed(2)}` 
+                      : (product.precio?.toString().startsWith('U$S') || product.precio?.toString().startsWith('$') ? product.precio : `U$S ${product.precio}`)}
                   </span>
                 </div>
               ) : (
@@ -1590,7 +1672,12 @@ function ProductCard({ product, viewMode, onClick, whatsappNumber }: Readonly<Pr
         )}
         {product.precio && typeof product.precio === 'number' && (
           <div className="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">
-            ${product.precio.toFixed(2)}
+            U$S {product.precio.toFixed(2)}
+          </div>
+        )}
+        {product.precio && typeof product.precio === 'string' && product.precio.trim() !== '' && product.precio.trim() !== '-' && (
+          <div className="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">
+            {product.precio.startsWith('U$S') || product.precio.startsWith('$') ? product.precio : `U$S ${product.precio}`}
           </div>
         )}
       </div>
