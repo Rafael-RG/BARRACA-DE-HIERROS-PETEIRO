@@ -46,11 +46,15 @@
 
 # Headers adicionales para forzar no-cache en HTML
 <IfModule mod_headers.c>
-  # HTML - Forzar no-cache
+  # HTML - Forzar no-cache (incluye headers para móviles)
   <FilesMatch "\.(html|htm)$">
-    Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
+    Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0, s-maxage=0, proxy-revalidate"
     Header set Pragma "no-cache"
     Header set Expires "0"
+    # Headers adicionales para Safari iOS y Chrome Android
+    Header set X-UA-Compatible "IE=edge"
+    Header unset ETag
+    Header unset Last-Modified
   </FilesMatch>
   
   # CSS y JS con hash - caché largo
