@@ -2,10 +2,17 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
-  RewriteRule ^index\.html$ - [L]
+  
+  # NO reescribir archivos estáticos (JS, CSS, imágenes, etc.)
+  RewriteCond %{REQUEST_URI} \.(js|css|jpg|jpeg|png|gif|webp|svg|ico|woff|woff2|ttf|eot|json)$ [NC]
+  RewriteRule ^ - [L]
+  
+  # NO reescribir si el archivo o directorio existe
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /index.html [L]
+  
+  # Redirigir todo lo demás a index.html
+  RewriteRule ^ index.html [L]
 </IfModule>
 
 # Habilitar compresión GZIP
