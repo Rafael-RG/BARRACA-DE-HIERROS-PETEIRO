@@ -16,14 +16,38 @@
 # Cache control
 <IfModule mod_expires.c>
   ExpiresActive On
+  
+  # HTML - SIN CACHÉ (forzar recarga siempre)
+  ExpiresByType text/html "access plus 0 seconds"
+  
+  # Imágenes - 1 año
   ExpiresByType image/jpg "access plus 1 year"
   ExpiresByType image/jpeg "access plus 1 year"
   ExpiresByType image/gif "access plus 1 year"
   ExpiresByType image/png "access plus 1 year"
-  ExpiresByType text/css "access plus 1 month"
-  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType image/webp "access plus 1 year"
+  
+  # CSS y JS - 1 año (Vite genera hashes únicos)
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
   ExpiresByType application/pdf "access plus 1 month"
-  ExpiresByType text/x-javascript "access plus 1 month"
+  ExpiresByType text/x-javascript "access plus 1 year"
   ExpiresByType image/x-icon "access plus 1 year"
+  
   ExpiresDefault "access plus 2 days"
+</IfModule>
+
+# Headers adicionales para forzar no-cache en HTML
+<IfModule mod_headers.c>
+  # HTML - Forzar no-cache
+  <FilesMatch "\.(html|htm)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </FilesMatch>
+  
+  # CSS y JS con hash - caché largo
+  <FilesMatch "\.(css|js)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
 </IfModule>
