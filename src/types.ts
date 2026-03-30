@@ -9,6 +9,7 @@ export interface Product {
   imagen?: string;
   presentacion?: string;
   observacion?: string;
+  activo?: string; // 'Si' o 'No'
 }
 
 export interface GroupedProducts {

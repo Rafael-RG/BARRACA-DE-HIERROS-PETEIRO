@@ -28,14 +28,10 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { parseExcelFromUrl } from './utils/excelParser';
 import { Product, GroupedProducts } from './types';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { cn } from './utils/cn';
 import { config } from './config';
 import { SmartImage } from './components/SmartImage';
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+import AdminPanel from './components/AdminPanel';
 
 // Constantes globales
 const WHATSAPP_NUMBER = '59896407663'; // Uruguay: 096 407 663
@@ -60,11 +56,12 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set());
   const [typePages, setTypePages] = useState<Map<string, number>>(new Map());
-  const [currentView, setCurrentView] = useState<'categories' | 'products' | 'about' | 'contact' | 'productDetail'>('categories');
+  const [currentView, setCurrentView] = useState<'categories' | 'products' | 'about' | 'contact' | 'productDetail' | 'admin'>('categories');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
   const mobileSearchInputRef = React.useRef<HTMLInputElement>(null);
+  const [priceOverrides, setPriceOverrides] = useState<Record<string, string | number>>({});
   
   const PRODUCTS_PER_PAGE = 20;
 
@@ -72,6 +69,46 @@ export default function App() {
   useEffect(() => {
     console.log('%c🏗️ Barraca de Hierros Peteiro v1.0.0', 'color: #dc2626; font-size: 14px; font-weight: bold');
     console.log('Build date:', new Date().toISOString().split('T')[0]);
+  }, []);
+
+  // Cargar price overrides desde localStorage
+  useEffect(() => {
+    const loadPriceOverrides = () => {
+      const saved = localStorage.getItem('admin_price_overrides');
+      if (saved) {
+        try {
+          setPriceOverrides(JSON.parse(saved));
+        } catch (e) {
+          console.error('Error loading price overrides:', e);
+        }
+      }
+    };
+    
+    loadPriceOverrides();
+    
+    // Escuchar cambios en localStorage (para actualizar en tiempo real cuando el admin guarda)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'admin_price_overrides' && e.newValue) {
+        setPriceOverrides(JSON.parse(e.newValue));
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // Detectar ruta /admin en la URL
+  useEffect(() => {
+    const checkAdminRoute = () => {
+      const hash = window.location.hash.slice(1); // Remover el #
+      if (hash === '/admin') {
+        setCurrentView('admin');
+      }
+    };
+    
+    checkAdminRoute();
+    window.addEventListener('hashchange', checkAdminRoute);
+    return () => window.removeEventListener('hashchange', checkAdminRoute);
   }, []);
 
   // Cargar Excel desde URL remota
@@ -118,8 +155,15 @@ export default function App() {
       const matchesCategory = !selectedCategory || p.categoria === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-    return filtered;
-  }, [products, searchTerm, selectedCategory]);
+    
+    // Aplicar price overrides del admin
+    return filtered.map(p => {
+      if (priceOverrides[p.id] !== undefined) {
+        return { ...p, precio: priceOverrides[p.id] };
+      }
+      return p;
+    });
+  }, [products, searchTerm, selectedCategory, priceOverrides]);
 
   const groupedProducts = useMemo(() => {
     const grouped: GroupedProducts = {};
@@ -235,6 +279,26 @@ export default function App() {
       }, 100);
     }
   }, [isMobileFilterOpen]);
+
+  // Si estamos en la vista admin, mostrar el panel de administración
+  if (currentView === 'admin') {
+    return (
+      <AdminPanel 
+        products={products.map(p => {
+          // Aplicar price overrides al pasar al admin
+          if (priceOverrides[p.id] !== undefined) {
+            return { ...p, precio: priceOverrides[p.id] };
+          }
+          return p;
+        })}
+        onBackToHome={() => {
+          setCurrentView('categories');
+          window.location.hash = '';
+        }}
+        onReloadData={loadRemoteExcel}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans flex flex-col">
@@ -1533,6 +1597,20 @@ export default function App() {
               Kiwibyte Studio™
             </a>
           </p>
+          {/* Admin link hidden - access via direct URL: #/admin */}
+          {/* <p className="text-xs text-gray-600 mt-4">
+            <a
+              href="#/admin"
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.hash = '/admin';
+                setCurrentView('admin');
+              }}
+              className="hover:text-gray-400 transition-colors"
+            >
+              Admin
+            </a>
+          </p> */}
         </div>
       </footer>
     </div>

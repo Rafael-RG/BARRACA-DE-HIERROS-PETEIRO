@@ -13,6 +13,32 @@ Aplicación web para mostrar el catálogo de productos de la Barraca de Hierros 
 - 📱 Diseño responsive y moderno
 - 🎨 Vista de lista y grilla
 - 🚀 Actualización automática al cargar la página
+- 🔐 **Panel de Administración** para gestionar precios (nuevo)
+
+## 🔐 Panel de Administración
+
+El sitio incluye un **panel admin** para actualizar precios sin necesidad de editar el Excel cada vez.
+
+### Acceso
+- URL: `https://tudominio.com/#/admin`
+- Contraseña por defecto: `peteiro2025`
+- También accesible desde el enlace "Admin" en el footer
+
+### Características del Panel
+- ✅ Editar precios en tiempo real
+- ✅ Búsqueda de productos
+- ✅ Exportar Excel con precios actualizados
+- ✅ Restaurar precios originales
+- ✅ Cambios se aplican instantáneamente en el sitio
+
+### Documentación Completa
+Ver [ADMIN_PANEL_GUIA.md](ADMIN_PANEL_GUIA.md) para instrucciones detalladas sobre:
+- Cómo cambiar la contraseña
+- Cómo funciona el sistema de precios
+- Flujo de trabajo recomendado
+- Troubleshooting
+
+---
 
 ## Configuración para Hostinger
 
