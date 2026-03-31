@@ -18,6 +18,10 @@ export const GOOGLE_CONFIG = {
 export const SPREADSHEET_ID = import.meta.env?.VITE_GOOGLE_SPREADSHEET_ID || '';
 export const SHEET_NAME = import.meta.env?.VITE_GOOGLE_SHEET_NAME || 'CVS'; // Nombre de la pestaña
 
+// Lista de emails autorizados (separados por comas)
+// Dejar vacío para permitir cualquier email (no recomendado en producción)
+const AUTHORIZED_EMAILS = import.meta.env?.VITE_AUTHORIZED_EMAILS || '';
+
 // Mapeo de columnas del Excel:
 // A=0: Producto_Imagen, B=1: Imagen, C=2: Nombre, D=3: Nombre(solo valores),
 // E=4: Categoría, F=5: Medidas, G=6: Tipo, H=7: Medida concatenadas,
@@ -73,17 +77,25 @@ class GoogleSheetsService {
               const savedToken = sessionStorage.getItem('google_access_token');
               const savedEmail = sessionStorage.getItem('google_user_email');
               
-              if (savedToken) {
-                // Restaurar el token
-                this.accessToken = savedToken;
-                this.userEmail = savedEmail;
-                this.isSignedIn = true;
-                
-                gapi.client.setToken({
-                  access_token: savedToken,
-                });
-                
-                console.log('Sesión de Google restaurada desde sessionStorage');
+              if (savedToken && savedEmail) {
+                // Validar si el email guardado está autorizado antes de restaurar
+                if (this.isEmailAuthorized(savedEmail)) {
+                  // Restaurar el token
+                  this.accessToken = savedToken;
+                  this.userEmail = savedEmail;
+                  this.isSignedIn = true;
+                  
+                  gapi.client.setToken({
+                    access_token: savedToken,
+                  });
+                  
+                  console.log('Sesión de Google restaurada desde sessionStorage');
+                } else {
+                  // El email ya no está autorizado, limpiar sesión
+                  console.warn('Email guardado ya no está autorizado. Limpiando sesión...');
+                  sessionStorage.removeItem('google_access_token');
+                  sessionStorage.removeItem('google_user_email');
+                }
               }
 
               // Inicializar Google Identity Services (GIS) Token Client
@@ -146,6 +158,38 @@ class GoogleSheetsService {
   }
 
   /**
+   * Verifica si un email está en la lista de autorizados
+   */
+  private isEmailAuthorized(email: string | null): boolean {
+    // Si no hay email, denegar acceso
+    if (!email) {
+      return false;
+    }
+
+    // Si no hay lista de emails autorizados, permitir cualquier email
+    // (solo para desarrollo, en producción se debe configurar la lista)
+    if (!AUTHORIZED_EMAILS || AUTHORIZED_EMAILS.trim() === '') {
+      console.warn('ADVERTENCIA: No hay lista de emails autorizados configurada. Se permite acceso a cualquier usuario.');
+      return true;
+    }
+
+    // Convertir la lista de emails en un array y normalizar (trim y lowercase)
+    const authorizedList = AUTHORIZED_EMAILS
+      .split(',')
+      .map(e => e.trim().toLowerCase())
+      .filter(e => e.length > 0);
+
+    // Verificar si el email del usuario está en la lista
+    const isAuthorized = authorizedList.includes(email.toLowerCase());
+    
+    if (!isAuthorized) {
+      console.warn(`Acceso denegado para el email: ${email}`);
+    }
+
+    return isAuthorized;
+  }
+
+  /**
    * Inicia sesión con Google usando GIS
    */
   async signIn(): Promise<void> {
@@ -176,6 +220,20 @@ class GoogleSheetsService {
           
           // Obtener email del usuario
           await this.fetchUserEmail();
+          
+          // Validar si el email está autorizado
+          if (!this.isEmailAuthorized(this.userEmail)) {
+            // Limpiar sesión si el usuario no está autorizado
+            this.accessToken = null;
+            this.isSignedIn = false;
+            this.userEmail = null;
+            sessionStorage.removeItem('google_access_token');
+            sessionStorage.removeItem('google_user_email');
+            gapi.client.setToken(null);
+            
+            reject(new Error('Acceso denegado. Tu email no está autorizado para acceder al panel de administración.'));
+            return;
+          }
           
           console.log('Sesión de Google iniciada y guardada en sessionStorage');
           resolve();

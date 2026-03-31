@@ -31,6 +31,47 @@ El sitio incluye un **panel admin** para actualizar precios sin necesidad de edi
 - ✅ Restaurar precios originales
 - ✅ Cambios se aplican instantáneamente en el sitio
 
+### 🔒 Restringir Acceso a Usuarios Autorizados
+
+Por seguridad, puedes configurar una **lista blanca de emails** que tendrán acceso al panel de administración con Google OAuth.
+
+#### Configuración de Usuario Autorizados
+
+1. **Agregar variable de entorno en Hostinger:**
+   - Accede al panel de Hostinger
+   - Ve a tu aplicación → **Variables de Entorno**
+   - Agrega una nueva variable:
+     ```
+     Nombre: VITE_AUTHORIZED_EMAILS
+     Valor: admin@example.com,usuario2@gmail.com,otro@company.com
+     ```
+   - **Importante:** Separa los emails con comas, sin espacios
+
+2. **Configuración local (desarrollo):**
+   - Edita tu archivo `.env.local`
+   - Agrega la variable:
+     ```env
+     VITE_AUTHORIZED_EMAILS="tu-email@gmail.com,otro-email@ejemplo.com"
+     ```
+
+3. **Comportamiento:**
+   - ✅ Solo los emails en la lista podrán acceder al panel admin
+   - ❌ Otros usuarios verán: "Acceso denegado. Tu email no está autorizado..."
+   - ⚠️ Si la variable está vacía, **cualquier usuario con cuenta Google puede acceder**
+
+#### Ejemplo Práctico
+
+```env
+# Un solo usuario
+VITE_AUTHORIZED_EMAILS="admin@peteiro.com"
+
+# Múltiples usuarios
+VITE_AUTHORIZED_EMAILS="admin@peteiro.com,gerente@gmail.com,jefe@yahoo.com"
+
+# Sin restricciones (NO RECOMENDADO en producción)
+VITE_AUTHORIZED_EMAILS=""
+```
+
 ### Documentación Completa
 Ver [ADMIN_PANEL_GUIA.md](ADMIN_PANEL_GUIA.md) para instrucciones detalladas sobre:
 - Cómo cambiar la contraseña

@@ -118,8 +118,9 @@ export default function AdminPanel({ products, onBackToHome, onReloadData }: Adm
       setAuthError('');
     } catch (error) {
       console.error('Error signing in:', error);
-      setAuthError('Error al conectar con Google. Verifica tus credenciales.');
-      setTimeout(() => setAuthError(''), 3000);
+      const errorMessage = error instanceof Error ? error.message : 'Error al conectar con Google. Verifica tus credenciales.';
+      setAuthError(errorMessage);
+      setTimeout(() => setAuthError(''), 5000); // Mostrar por 5 segundos si es error de autorización
     }
   };
 
