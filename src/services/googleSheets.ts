@@ -9,7 +9,7 @@ declare const gapi: any;
 export const GOOGLE_CONFIG = {
   clientId: import.meta.env?.VITE_GOOGLE_CLIENT_ID || '',
   apiKey: import.meta.env?.VITE_GOOGLE_API_KEY || '',
-  scopes: 'https://www.googleapis.com/auth/spreadsheets',
+  scopes: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.email',
   discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
 };
 
@@ -163,8 +163,14 @@ class GoogleSheetsService {
   private isEmailAuthorized(email: string | null): boolean {
     // Si no hay email, denegar acceso
     if (!email) {
+      console.error('❌ isEmailAuthorized: No hay email');
       return false;
     }
+
+    // Debug: mostrar el valor actual de AUTHORIZED_EMAILS
+    console.log('🔍 DEBUG - AUTHORIZED_EMAILS raw:', AUTHORIZED_EMAILS);
+    console.log('🔍 DEBUG - AUTHORIZED_EMAILS length:', AUTHORIZED_EMAILS.length);
+    console.log('🔍 DEBUG - Email del usuario:', email);
 
     // Si no hay lista de emails autorizados, permitir cualquier email
     // (solo para desarrollo, en producción se debe configurar la lista)
@@ -179,11 +185,17 @@ class GoogleSheetsService {
       .map(e => e.trim().toLowerCase())
       .filter(e => e.length > 0);
 
+    console.log('🔍 DEBUG - Lista de emails autorizados:', authorizedList);
+
     // Verificar si el email del usuario está en la lista
     const isAuthorized = authorizedList.includes(email.toLowerCase());
     
+    console.log('🔍 DEBUG - ¿Está autorizado?:', isAuthorized);
+    
     if (!isAuthorized) {
-      console.warn(`Acceso denegado para el email: ${email}`);
+      console.warn(`❌ Acceso denegado para el email: ${email}`);
+    } else {
+      console.log('✅ Acceso permitido para el email:', email);
     }
 
     return isAuthorized;
