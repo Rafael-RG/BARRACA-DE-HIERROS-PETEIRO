@@ -73,7 +73,9 @@ export const parseExcelFile = (file: File): Promise<Product[]> => {
     const worksheet = workbook.Sheets[firstSheetName];
     
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
-    const products: Product[] = jsonData.map((row: any, index: number) => mapRowToProduct(row, index));
+    const products: Product[] = jsonData
+      .map((row: any, index: number) => mapRowToProduct(row, index))
+      .filter(p => p.nombre && p.nombre.trim() !== ''); // Filtrar productos sin nombre
     return products;
   });
 };
@@ -130,7 +132,9 @@ export const parseExcelFromUrl = async (url: string): Promise<Product[]> => {
     }
 
     // Map to Product interface con búsqueda flexible de columnas
-    const products: Product[] = jsonData.map((row: any, index: number) => mapRowToProduct(row, index));
+    const products: Product[] = jsonData
+      .map((row: any, index: number) => mapRowToProduct(row, index))
+      .filter(p => p.nombre && p.nombre.trim() !== ''); // Filtrar productos sin nombre
     
     // Mostrar un producto mapeado de ejemplo
     if (products.length > 0) {
