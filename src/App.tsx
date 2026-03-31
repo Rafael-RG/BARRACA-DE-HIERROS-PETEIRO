@@ -355,15 +355,12 @@ export default function App() {
             >
               Contacto
             </button>
-            <button
-              onClick={() => {
-                window.location.hash = '/privacy-policy';
-                setCurrentView('privacy');
-              }}
+            <a
+              href="/privacy-policy.html"
               className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
             >
               Privacidad
-            </button>
+            </a>
 
             {/* Mobile Menu Button */}
             <button
@@ -414,16 +411,12 @@ export default function App() {
                 >
                   Contacto
                 </button>
-                <button
-                  onClick={() => {
-                    window.location.hash = '/privacy-policy';
-                    setCurrentView('privacy');
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
+                <a
+                  href="/privacy-policy.html"
+                  className="w-full text-left block px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
                 >
                   Privacidad
-                </button>
+                </a>
               </div>
             </motion.div>
           )}
@@ -1633,12 +1626,7 @@ export default function App() {
           </p>
           <p className="text-xs text-gray-500 mt-3">
             <a
-              href="#/privacy-policy"
-              onClick={(e) => {
-                e.preventDefault();
-                window.location.hash = '/privacy-policy';
-                setCurrentView('privacy');
-              }}
+              href="/privacy-policy.html"
               className="hover:text-gray-300 transition-colors underline"
             >
               Política de Privacidad
