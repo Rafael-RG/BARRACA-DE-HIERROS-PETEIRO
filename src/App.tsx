@@ -355,6 +355,15 @@ export default function App() {
             >
               Contacto
             </button>
+            <button
+              onClick={() => {
+                window.location.hash = '/privacy-policy';
+                setCurrentView('privacy');
+              }}
+              className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
+            >
+              Privacidad
+            </button>
 
             {/* Mobile Menu Button */}
             <button
@@ -404,6 +413,16 @@ export default function App() {
                   className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
                 >
                   Contacto
+                </button>
+                <button
+                  onClick={() => {
+                    window.location.hash = '/privacy-policy';
+                    setCurrentView('privacy');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  Privacidad
                 </button>
               </div>
             </motion.div>
