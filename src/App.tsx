@@ -32,6 +32,7 @@ import { cn } from './utils/cn';
 import { config } from './config';
 import { SmartImage } from './components/SmartImage';
 import AdminPanel from './components/AdminPanel';
+import PrivacyPolicy from './components/PrivacyPolicy';
 
 // Constantes globales
 const WHATSAPP_NUMBER = '59896407663'; // Uruguay: 096 407 663
@@ -56,7 +57,7 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set());
   const [typePages, setTypePages] = useState<Map<string, number>>(new Map());
-  const [currentView, setCurrentView] = useState<'categories' | 'products' | 'about' | 'contact' | 'productDetail' | 'admin'>('categories');
+  const [currentView, setCurrentView] = useState<'categories' | 'products' | 'about' | 'contact' | 'productDetail' | 'admin' | 'privacy'>('categories');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
@@ -97,18 +98,20 @@ export default function App() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  // Detectar ruta /admin en la URL
+  // Detectar rutas especiales en la URL
   useEffect(() => {
-    const checkAdminRoute = () => {
+    const checkSpecialRoutes = () => {
       const hash = window.location.hash.slice(1); // Remover el #
       if (hash === '/admin') {
         setCurrentView('admin');
+      } else if (hash === '/privacy-policy') {
+        setCurrentView('privacy');
       }
     };
     
-    checkAdminRoute();
-    window.addEventListener('hashchange', checkAdminRoute);
-    return () => window.removeEventListener('hashchange', checkAdminRoute);
+    checkSpecialRoutes();
+    window.addEventListener('hashchange', checkSpecialRoutes);
+    return () => window.removeEventListener('hashchange', checkSpecialRoutes);
   }, []);
 
   // Cargar Excel desde URL remota
@@ -279,6 +282,18 @@ export default function App() {
       }, 100);
     }
   }, [isMobileFilterOpen]);
+
+  // Si estamos en la vista de política de privacidad, mostrarla
+  if (currentView === 'privacy') {
+    return (
+      <PrivacyPolicy
+        onBackToHome={() => {
+          setCurrentView('categories');
+          window.location.hash = '';
+        }}
+      />
+    );
+  }
 
   // Si estamos en la vista admin, mostrar el panel de administración
   if (currentView === 'admin') {
@@ -1595,6 +1610,19 @@ export default function App() {
               className="text-red-400 hover:text-red-300 font-medium transition-colors"
             >
               Kiwibyte Studio™
+            </a>
+          </p>
+          <p className="text-xs text-gray-500 mt-3">
+            <a
+              href="#/privacy-policy"
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.hash = '/privacy-policy';
+                setCurrentView('privacy');
+              }}
+              className="hover:text-gray-300 transition-colors underline"
+            >
+              Política de Privacidad
             </a>
           </p>
           {/* Admin link hidden - access via direct URL: #/admin */}
