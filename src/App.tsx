@@ -63,8 +63,14 @@ export default function App() {
   const searchInputRef = React.useRef<HTMLInputElement>(null);
   const mobileSearchInputRef = React.useRef<HTMLInputElement>(null);
   const [priceOverrides, setPriceOverrides] = useState<Record<string, string | number>>({});
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   
   const PRODUCTS_PER_PAGE = 20;
+  const BANNER_IMAGES = [
+    '/Imagenes/Banner/hierro-para-construccion.png',
+    '/Imagenes/Banner/insumos-de-herreria.png',
+    '/Imagenes/Banner/material-de-hierro.png'
+  ];
 
   // Log version on mount
   useEffect(() => {
@@ -96,6 +102,15 @@ export default function App() {
     
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // Rotar imágenes del banner automáticamente
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBannerIndex((prev) => (prev + 1) % BANNER_IMAGES.length);
+    }, 5000); // Cambiar cada 5 segundos
+    
+    return () => clearInterval(interval);
   }, []);
 
   // Detectar rutas especiales en la URL
@@ -355,12 +370,6 @@ export default function App() {
             >
               Contacto
             </button>
-            <a
-              href="/privacy-policy.html"
-              className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
-            >
-              Privacidad
-            </a>
 
             {/* Mobile Menu Button */}
             <button
@@ -411,12 +420,6 @@ export default function App() {
                 >
                   Contacto
                 </button>
-                <a
-                  href="/privacy-policy.html"
-                  className="w-full text-left block px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
-                >
-                  Privacidad
-                </a>
               </div>
             </motion.div>
           )}
@@ -502,34 +505,38 @@ export default function App() {
           /* Vista de Categorías */
           <div className="space-y-8">
             {/* Banner Hero */}
-            <div className="relative bg-gradient-to-r from-red-900 via-red-700 to-red-900 rounded-3xl overflow-hidden shadow-2xl lg:-mx-16 xl:-mx-24 2xl:-mx-32">
-              {/* Imagen de fondo del banner */}
-              <div className="absolute inset-0 opacity-20">
-                <img 
-                  src="/Imagenes/Banner/banner-hierros.jpg" 
-                  alt="Banner Hierros Peteiro"
-                  className="w-full h-full object-cover"
-                />
+            <div className="relative bg-gray-900 rounded-3xl overflow-hidden shadow-2xl lg:-mx-16 xl:-mx-24 2xl:-mx-32">
+              {/* Imagen de fondo del banner con transición */}
+              <div className="absolute inset-0">
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={currentBannerIndex}
+                    src={BANNER_IMAGES[currentBannerIndex]}
+                    alt="Banner Hierros Peteiro"
+                    className="w-full h-full object-cover"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1 }}
+                  />
+                </AnimatePresence>
               </div>
               
-              {/* Patrón de textura metálica */}
-              <div className="absolute inset-0 bg-gradient-to-br from-black/30 via-transparent to-black/30" />
+              {/* Overlay oscuro para legibilidad del texto */}
+              <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/45 to-black/60" />
               
               {/* Contenido del banner */}
-              <div className="relative z-10 px-6 md:px-12 py-14 md:py-20">
+              <div className="relative z-10 px-6 md:px-12 py-20 md:py-32">
                 <div className="max-w-4xl mx-auto text-center">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                   >
-                    <h1 className="text-2xl md:text-6xl font-bold text-white mb-2 md:mb-4 tracking-tight">
-                      Barraca de Hierros Peteiro
-                    </h1>
-                    <p className="text-base md:text-2xl text-red-100 mb-3 md:mb-6 font-light">
+                    <p className="text-base md:text-2xl text-white mb-3 md:mb-6 font-light">
                       Más de 20 años construyendo con vos
                     </p>
-                    <p className="text-xs md:text-lg text-red-50/90 mb-4 md:mb-8 max-w-2xl mx-auto">
+                    <p className="text-xs md:text-lg text-white/90 mb-4 md:mb-8 max-w-2xl mx-auto">
                       Materiales de calidad para tu obra. Servicio personalizado en Parque del Plata y Punta del Diablo.
                     </p>
                     
@@ -555,8 +562,25 @@ export default function App() {
                 </div>
               </div>
               
+              {/* Indicadores del carrusel */}
+              <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-2">
+                {BANNER_IMAGES.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentBannerIndex(index)}
+                    className={cn(
+                      "w-2 h-2 rounded-full transition-all duration-300",
+                      currentBannerIndex === index 
+                        ? "bg-white w-8" 
+                        : "bg-white/50 hover:bg-white/75"
+                    )}
+                    aria-label={`Ir a imagen ${index + 1}`}
+                  />
+                ))}
+              </div>
+              
               {/* Decoración inferior */}
-              <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-red-800 via-red-600 to-red-800" />
+              <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700" />
             </div>
 
             <div className="text-center max-w-2xl mx-auto pt-4">
@@ -884,8 +908,8 @@ export default function App() {
           <div className="max-w-4xl mx-auto space-y-8 pb-8">
             <div className="text-center">
               <h2 className="text-4xl font-bold tracking-tight mb-4 text-red-600">Contacto</h2>
-              <p className="text-lg text-gray-600 mb-2">Estamos para ayudarte en tu proyecto</p>
-              <p className="text-base text-gray-500">Comunicate con nosotros por cualquiera de estos canales</p>
+              <p className="text-lg text-gray-600 mb-2">¡Estamos para ayudarte!</p>
+              <p className="text-base text-gray-500">Comunicate por cualquiera de estos canales y te asesoramos en tu proyecto</p>
             </div>
 
             {/* Sección: Contáctanos */}
@@ -940,7 +964,7 @@ export default function App() {
 
             {/* Sección: Sucursales */}
             <div id="sucursales" className="bg-white rounded-3xl p-8 shadow-lg border border-red-600/10">
-              <h3 className="text-2xl font-bold mb-3 text-center">Nuestras Sucursales</h3>
+              <h2 className="text-4xl font-bold tracking-tight mb-4 text-red-600 text-center">Nuestras Sucursales</h2>
               <p className="text-center text-gray-600 mb-6 max-w-2xl mx-auto">
                 Contamos con dos locales estratégicamente ubicados en la costa este del país para estar más cerca de tu obra
               </p>
@@ -1413,7 +1437,7 @@ export default function App() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
-                    className="space-y-12"
+                    className="space-y-12 pb-16"
                   >
                     {Object.entries(groupedProducts).map(([category, types]) => (
                       <section key={category} id={category.replaceAll(/\s+/g, '-').toLowerCase()}>
@@ -1609,29 +1633,112 @@ export default function App() {
 
       {/* Footer */}
       <footer className="bg-black text-white">
-        <div className="max-w-7xl mx-auto px-4 py-8 text-center">
-          <p className="text-sm text-gray-400 mb-2">
-            Copyright © 2025 Barraca de Hierros Peteiro
-          </p>
-          <p className="text-sm text-gray-400">
-            Sitio creado por{' '}
-            <a
-              href="https://wa.me/59892952528"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-red-400 hover:text-red-300 font-medium transition-colors"
-            >
-              Kiwibyte Studio™
-            </a>
-          </p>
-          <p className="text-xs text-gray-500 mt-3">
-            <a
-              href="/privacy-policy.html"
-              className="hover:text-gray-300 transition-colors underline"
-            >
-              Política de Privacidad
-            </a>
-          </p>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Footer Columns - Grid Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            {/* Column 1: Contacto */}
+            <div className="text-left">
+              <h3 className="text-sm font-semibold text-gray-300 mb-3">Contacto</h3>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-red-400" />
+                  <a
+                    href="https://wa.me/59896610184"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-gray-400 hover:text-red-400 transition-colors"
+                  >
+                    096 610 184
+                  </a>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-red-400" />
+                  <a
+                    href="https://wa.me/59896407663"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-gray-400 hover:text-red-400 transition-colors"
+                  >
+                    096 407 663
+                  </a>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Instagram className="w-4 h-4 text-red-400" />
+                  <a
+                    href="https://www.instagram.com/peteiro.barracadehierros/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-gray-400 hover:text-red-400 transition-colors"
+                  >
+                    @peteiro.barracadehierros
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Column 2: Sucursales */}
+            <div className="text-left">
+              <h3 className="text-sm font-semibold text-gray-300 mb-3">Sucursales</h3>
+              <div className="flex flex-col gap-2">
+                <a
+                  href="https://www.google.com/maps/search/-34.751879,+-55.714363"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-2 text-sm text-gray-400 hover:text-red-400 transition-colors"
+                >
+                  <MapPin className="w-4 h-4 text-red-400 mt-0.5" />
+                  <div>
+                    <span className="font-medium">Parque del Plata</span> - Canelones
+                  </div>
+                </a>
+                <a
+                  href="https://www.google.com/maps/place/XC67%2B9XJ,+27200+Punta+del+Diablo,+Departamento+de+Rocha/@-34.039037,-53.585109,15z"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-2 text-sm text-gray-400 hover:text-red-400 transition-colors"
+                >
+                  <MapPin className="w-4 h-4 text-red-400 mt-0.5" />
+                  <div>
+                    <span className="font-medium">Punta del Diablo</span> - Rocha
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            {/* Column 3: Links */}
+            <div className="text-left">
+              <h3 className="text-sm font-semibold text-gray-300 mb-3">Links</h3>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => setCurrentView('about')}
+                  className="text-sm text-gray-400 hover:text-red-400 transition-colors text-left"
+                >
+                  Sobre Nosotros
+                </button>
+                <a
+                  href="/privacy-policy.html"
+                  className="text-sm text-gray-400 hover:text-red-400 transition-colors text-left"
+                >
+                  Política de Privacidad
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Copyright */}
+          <div className="text-center border-t border-gray-800 pt-4">
+            <p className="text-xs text-gray-400">
+              Copyright © 2025 Barraca de Hierros Peteiro • Sitio creado por{' '}
+              <a
+                href="https://wa.me/59892952528"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-red-400 hover:text-red-300 font-medium transition-colors"
+              >
+                Kiwibyte Studio™
+              </a>
+            </p>
+          </div>
           {/* Admin link hidden - access via direct URL: #/admin */}
           {/* <p className="text-xs text-gray-600 mt-4">
             <a
